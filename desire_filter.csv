@@ -1,0 +1,4 @@
+﻿No,Numerator,Denominator,State,GroupDelay,NsplitApprox,NspritTransition
+1,8,2,LPF(0.2 : 0.275),5,200,50
+2,12,8,LPF(0.2 : 0.25),10,200,50
+3,15,15,LPF(0.3 : 0.395),15,200,50
