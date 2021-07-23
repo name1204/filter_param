@@ -169,7 +169,7 @@ vector<BandParam> FilterParam::gen_bands
 			double edge[] = { edges... };
 			bands.emplace_back(BandParam(BandType::Pass, 0.0, edge[0]));
 			bands.emplace_back(BandParam(BandType::Transition, edge[0], edge[1]));
-			bands.emplace_back(BandParam(BandType::Pass, edge[1], 0.5));
+			bands.emplace_back(BandParam(BandType::Stop, edge[1], 0.5));
 			break;
 		}
 		case FilterType::Other:
