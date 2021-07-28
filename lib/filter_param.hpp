@@ -13,12 +13,15 @@
 
 #include <cstdio>
 #include <cstdlib>
+#include <cmath>
+
 #include <iostream>
 #include <fstream>
 #include <vector>
 #include <sstream>
 #include <string>
 #include <regex>
+#include <complex>
 
 
 using namespace std;
@@ -78,6 +81,7 @@ public:
 	BandType type(){ return band_type; }
 	double left(){ return left_side; }
 	double right(){ return right_side; }
+	double width(){ return right_side - left_side; }
 	string sprint();
 };
 
@@ -93,7 +97,8 @@ protected:
 	double group_delay;
 
 	// 内部パラメータ
-
+	vector<vector<complex<double>>> csw;		// 複素正弦波e^-jωを周波数帯域別に格納
+	vector<vector<complex<double>>> csw2;		// 複素正弦波e^-j2ωを周波数帯域別に格納
 
 	FilterParam()
 	:n(0), m(0),
@@ -127,6 +132,8 @@ public:
 	static vector<BandParam> gen_bands(FilterType, Args...);
 	static FilterType analyze_type(string&);
 	static vector<double> analyze_edges(string&);
+	static vector<complex<double>> gen_csw(BandParam&, unsigned int);
+	static vector<complex<double>> gen_csw2(BandParam&, unsigned int);
 };
 
 

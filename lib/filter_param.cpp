@@ -95,6 +95,74 @@ FilterParam::FilterParam
 		}
 		exit(EXIT_FAILURE);
 	}
+
+	// 帯域ごとの分割数算出
+	double approx_range = 0.0;
+	double transition_range = 0.0;
+
+	for(auto bp :bands)
+	{
+		switch(bp.type())
+		{
+			case BandType::Pass:
+			{
+				approx_range += bp.width();
+				break;
+			}
+			case BandType::Stop:
+			{
+				approx_range += bp.width();
+				break;
+			}
+			case BandType::Transition:
+			{
+				transition_range += bp.width();
+				break;
+			}
+		}
+	}
+
+	vector<unsigned int> split;
+		split.reserve(bands.size());
+	for(auto bp :bands)
+	{
+		switch(bp.type())
+		{
+			case BandType::Pass:
+			{
+				split.emplace_back(
+					(unsigned int)
+					((double)nsplit_approx*bp.width() / approx_range) );
+				break;
+			}
+			case BandType::Stop:
+			{
+				split.emplace_back(
+					(unsigned int)
+					((double)nsplit_approx*bp.width() / approx_range) );
+				break;
+			}
+			case BandType::Transition:
+			{
+				split.emplace_back(
+					(unsigned int)
+					((double)nsplit_transition*bp.width() / transition_range) );
+				break;
+			}
+		}
+	}
+	split.at(0) += 1;
+
+	// generate complex sin wave(e^-jω)
+	csw.reserve(bands.size());
+	csw2.reserve(bands.size());
+	for(unsigned int i = 0 ; i < bands.size() ; ++i)
+	{
+		csw.emplace_back(FilterParam::gen_csw(bands.at(i), split.at(i)));
+		csw2.emplace_back(FilterParam::gen_csw2(bands.at(i), split.at(i)));
+	}
+
+	printf("%d, %d, %d\n", split.at(0), split.at(1), split.at(2));
 }
 
 vector<FilterParam> FilterParam::read_csv(string& filename)
@@ -150,6 +218,8 @@ vector<FilterParam> FilterParam::read_csv(string& filename)
 		);
 	}
 
+	// 次数に応じた関数を格納
+
 
 	return filter_params;
 }
@@ -177,7 +247,7 @@ FilterType FilterParam::analyze_type(string& input)
 	{
 		type = FilterType::LPF;
 	}
-	else if(true)
+	else if(true)	// hpf, bpf, bef バリエーション
 	{
 		fprintf(stderr, "Error: [%s l.%d]It has not been implement yet.(input : \"%s\")\n",
 				__FILE__, __LINE__, input.c_str());
@@ -214,3 +284,40 @@ vector<double> FilterParam::analyze_edges(string& input)
 	}
 	return edge;
 }
+
+vector<complex<double>> gen_csw(BandParam& bp, unsigned int nsplit)
+{
+	vector<complex<double>> csw;
+		csw.reserve(nsplit);
+	double step_size = bp.width() / nsplit;
+	double left = bp.left();
+	const double dpi = 2.0*M_PI;			// double pi
+
+	for(unsigned int i = 0 ; i < nsplit ; ++i)
+	{
+		csw.emplace_back(
+			exp( complex<double>(1.0 ,dpi*(left + step_size*(double)i) ) )
+			);
+	}
+
+	return csw;
+}
+
+vector<complex<double>> gen_csw2(BandParam& bp, unsigned int nsplit)
+{
+	vector<complex<double>> csw2;
+		csw2.reserve(nsplit);
+	double step_size = bp.width() / nsplit;
+	double left = bp.left();
+	const double dpi = 4.0*M_PI;			// quadrical pi
+
+	for(unsigned int i = 0 ; i < nsplit ; ++i)
+	{
+		csw2.emplace_back(
+			exp( complex<double>(1.0 ,dpi*(left + step_size*(double)i) ) )
+			);
+	}
+
+	return csw2;
+}
+

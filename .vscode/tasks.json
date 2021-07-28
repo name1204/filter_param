@@ -1,0 +1,89 @@
+{
+	// See https://go.microsoft.com/fwlink/?LinkId=733558
+	// for the documentation about the tasks.json format
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "mkdir debug",
+			"type": "shell",
+			"command": "ni Debug -itemType Directory -f"
+		},
+		{
+			"label": "pre build debug1",
+			"type": "process",
+			"command": "g++",
+			"args": [
+				"-Wall",
+				"-std=gnu++11",
+				"-c",
+				"-g3",
+				"${workspaceFolder}\\*.cpp",
+				"-o",
+				"${workspaceFolder}\\Debug\\${fileBasenameNoExtension}.o"
+			],
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			},
+			"dependsOn":["mkdir debug"]
+		},
+		{
+			"label": "pre build debug2",
+			"type": "process",
+			"command": "g++",
+			"args": [
+				"-Wall",
+				"-std=gnu++11",
+				"-c",
+				"-g3",
+				"${workspaceFolder}\\lib\\*.cpp",
+				"-o",
+				"${workspaceFolder}\\Debug\\lib.o"
+			],
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			},
+			"dependsOn":["mkdir debug"]
+		},
+		{
+			"label": "build debug",
+			"type": "process",
+			"command": "g++",
+			"args": [
+				"-std=gnu++11",
+				"-g3",
+				"${workspaceFolder}\\Debug\\*.o",
+				"-o",
+				"${workspaceFolder}\\Debug\\main.exe"
+			],
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			},
+			"dependsOn":["pre build debug1", "pre build debug2"]
+		},
+		{
+			"label": "test build debug",
+			"type": "process",
+			"command": "g++",
+			"args": [
+				"-std=gnu++11",
+				"-g3",
+				"${workspaceFolder}\\*.cpp",
+				"${workspaceFolder}\\lib\\*.cpp",
+				"-o",
+				"${workspaceFolder}\\test.exe"
+			],
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			}
+		},
+		{
+			"label": "test run",
+			"type": "process",
+			"command": "${workspaceFolder}\\test.exe"
+		}
+	]
+}

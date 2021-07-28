@@ -24,12 +24,21 @@ int main(void)
 	return 0;
 }
 
+/* 周波数帯域の構造体
+ *   生成と表示のテスト
+ *
+ */
 void test_BandParam_new()
 {
 	auto bp = BandParam(BandType::Pass, 0.0, 0.2);
 	printf("%s\n", bp.sprint().c_str());
 }
 
+/* フィルタ構造体
+ *   フィルタタイプから周波数帯域を生成するテスト
+ *   大抵、複数の周波数帯域からフィルタが成るため、
+ *   vectorで周波数帯域を返却する
+ */
 void test_Band_generator()
 {
 	auto bands = FilterParam::gen_bands(FilterType::LPF, 0.2, 0.3);
@@ -39,9 +48,13 @@ void test_Band_generator()
 	}
 }
 
+/* フィルタ構造体
+ *   文字列(string)から、フィルタタイプと
+ *   周波数帯域端を分離するテスト
+ */
 void test_analyze_edges()
 {
-	string type("LPF(0.2, 0.3)");
+	string type("LPF(0.2 : 0.3)");
 	auto ftype = FilterParam::analyze_type(type);
 	auto edges = FilterParam::analyze_edges(type);
 
@@ -57,6 +70,15 @@ void test_analyze_edges()
 
 }
 
+/* フィルタ構造体
+ *   CSVファイルから所望特性を読み取るテスト
+ *   書式は以下の通り
+ *
+ *     No,Numerator,Denominator,State,GroupDelay,NsplitApprox,NspritTransition
+ *
+ *   vectorのインデックス = Noなので
+ *   "No"は読みこまない
+ */
 void test_FilterParam_read_csv()
 {
 	string filename("./desire_filter.csv");
