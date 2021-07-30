@@ -20,6 +20,7 @@ int main(void)
 {
 	printf("example run\n");
 
+	test_BandParam_new();
 
 	return 0;
 }

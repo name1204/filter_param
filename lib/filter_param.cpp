@@ -285,7 +285,7 @@ vector<double> FilterParam::analyze_edges(string& input)
 	return edge;
 }
 
-vector<complex<double>> gen_csw(BandParam& bp, unsigned int nsplit)
+vector<complex<double>> FilterParam::gen_csw(BandParam& bp, unsigned int nsplit)
 {
 	vector<complex<double>> csw;
 		csw.reserve(nsplit);
@@ -303,7 +303,7 @@ vector<complex<double>> gen_csw(BandParam& bp, unsigned int nsplit)
 	return csw;
 }
 
-vector<complex<double>> gen_csw2(BandParam& bp, unsigned int nsplit)
+vector<complex<double>> FilterParam::gen_csw2(BandParam& bp, unsigned int nsplit)
 {
 	vector<complex<double>> csw2;
 		csw2.reserve(nsplit);
