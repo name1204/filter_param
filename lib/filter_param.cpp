@@ -9,8 +9,7 @@
 
 using namespace std;
 
-FILE* fileopen(const string &filename, const char mode, const string &call_file,
-		const int call_line)
+FILE *fileopen(const string &filename, const char mode, const string &call_file, const int call_line)
 {
 	FILE *fp = fopen(filename.c_str(), &mode);
 	if (fp == NULL)
@@ -25,8 +24,7 @@ FILE* fileopen(const string &filename, const char mode, const string &call_file,
 
 vector<string> split_char(string &str, char spliter)
 {
-	stringstream ss
-	{ str };
+	stringstream ss{str};
 	vector<std::string> strs;
 	string buf;
 	while (std::getline(ss, buf, spliter))
@@ -76,8 +74,7 @@ FilterParam::FilterParam
 	{
 		if (bp.left() != band_left)
 		{
-			fprintf(stderr,
-					"Error: [%s l.%d]Adjacent band edge is necessary same.\n"
+			fprintf(stderr, "Error: [%s l.%d]Adjacent band edge is necessary same.\n"
 							"Or first band of left side must be 0.0.\n",
 					__FILE__, __LINE__);
 			for (auto bp : bands)
@@ -135,22 +132,19 @@ FilterParam::FilterParam
 		case BandType::Pass:
 		{
 			split.emplace_back(
-					(unsigned int) ((double) nsplit_approx * bp.width()
-							/ approx_range));
+				(unsigned int)((double)nsplit_approx * bp.width() / approx_range));
 			break;
 		}
 		case BandType::Stop:
 		{
 			split.emplace_back(
-					(unsigned int) ((double) nsplit_approx * bp.width()
-							/ approx_range));
+				(unsigned int)((double)nsplit_approx * bp.width() / approx_range));
 			break;
 		}
 		case BandType::Transition:
 		{
 			split.emplace_back(
-					(unsigned int) ((double) nsplit_transition * bp.width()
-							/ transition_range));
+				(unsigned int)((double)nsplit_transition * bp.width() / transition_range));
 			break;
 		}
 		}
@@ -204,7 +198,7 @@ vector<FilterParam> FilterParam::read_csv(string &filename)
 	}
 
 	string buf;
-	getline(ifs, buf);		// ヘッダ読み飛ばし
+	getline(ifs, buf); // ヘッダ読み飛ばし
 	while (getline(ifs, buf))
 	{
 		auto vals = split_char(buf, ',');
@@ -218,20 +212,17 @@ vector<FilterParam> FilterParam::read_csv(string &filename)
 			auto edges = FilterParam::analyze_edges(vals.at(3));
 			if (edges.size() != 2)
 			{
-				fprintf(stderr,
-						"Error: [%s l.%d]Format of filter state is illegal.(input : \"%s\")\n"
+				fprintf(stderr, "Error: [%s l.%d]Format of filter state is illegal.(input : \"%s\")\n"
 								"If you assign filter type L.P.F. , length of edges is only 2.\n",
 						__FILE__, __LINE__, vals.at(3).c_str());
 				exit(EXIT_FAILURE);
 			}
-			bands = FilterParam::gen_bands(FilterType::LPF, edges.at(0),
-					edges.at(1));
+			bands = FilterParam::gen_bands(FilterType::LPF, edges.at(0), edges.at(1));
 			break;
 		}
 		default:
 		{
-			fprintf(stderr,
-					"Error: [%s l.%d]It has not been implement yet.(input : \"%s\")\n",
+			fprintf(stderr, "Error: [%s l.%d]It has not been implement yet.(input : \"%s\")\n",
 					__FILE__, __LINE__, vals.at(3).c_str());
 			exit(EXIT_FAILURE);
 		}
@@ -445,6 +436,43 @@ vector<vector<complex<double>>> FilterParam::freq_res_no(vector<double> &coef)
 		}
 		freq.emplace_back(freq_band);
 	}
+vector<vector<complex<double>>> FilterParam::freq_res_mo(vector<double> &coef) // 周波数特性計算関数
+{
+	vector<vector<complex<double>>> freq;
+	freq.reserve(bands.size());
 
+	for (unsigned int i = 0; i < bands.size(); ++i) // 周波数帯域のループ(L.P.F.なら３つ)
+	{
+		// csw.at(i), csw2.at(i), bands.at(i)がその周波数帯域で使う値に
+		// cswは複素正弦波、e^-jω
+
+		vector<complex<double>> freq_band;
+		freq_band.reserve(csw.at(i).size());
+
+		for (unsigned int j = 0; j < csw.at(i).size(); ++j) // 周波数帯域内の分割数によるループ
+		{
+			// 2次の分子なら
+			// 1 + coef[0]*csw.at(i).at(j) + coef[1]*csw2.at(i).at(j)
+			// みたいにかける
+			// 係数のインデックスはおかしいけど、適当に埋めてあるだけです
+			complex<double> nume(1.0, 1.0);
+
+			for (unsigned int n = 1; n < n_order; n += 2)
+			{
+				nume *= 1.0 + coef[n] * csw.at(i).at(j) + coef[n + 1] * csw2.at(i).at(j);
+			}
+
+			complex<double> deno = 1.0 + coef[n_order + 1] * csw.at(i).at(j);
+
+			for (unsigned int m = n_order + 2; m < m_order; m += 2) //分母だけ奇数
+			{
+				deno *= 1.0 + coef[m] * csw.at(i).at(j) + coef[m + 1] * csw2.at(i).at(j);
+			}
+
+			freq_band.emplace_back(coef.at(0) * nume / deno);
+		}
+		freq.emplace_back(freq_band);
+	}
+	
 	return freq;
 }

@@ -18,6 +18,7 @@ void test_FilterParam_read_csv();
 void test_FilterParam_csw();
 void test_FilterParam_freq_res_se();
 void test_FilterParam_freq_res_no();
+void test_FilterParam_freq_res_mo();
 
 int main(void)
 {
@@ -125,26 +126,57 @@ void test_FilterParam_csw()
  */
 void test_FilterParam_freq_res_se()
 {
+    vector<double> coef
+    {
+        0.018656458,
+
+        1.969338828,
+        1.120102082,
+        0.388717952,
+        0.996398946,
+        1.048137529,
+        1.037079725,
+        -4.535575709,
+        6.381429398,
+
+        -0.139429968,
+        0.763426685
+    };
+    auto bands = FilterParam::gen_bands(FilterType::LPF, 0.2, 0.3);
+    FilterParam fparam(8, 2, bands, 200, 50, 5.0);
+
+    auto freq_res = fparam.freq_res(coef);
+
+    for(auto band_res :freq_res)
+    {
+        for(auto res :band_res)
+        {
+            printf("%f\n", abs(res));
+        }
+    }
+}
+
+void test_FilterParam_freq_res_mo()
+{
 	vector<double> coef
 	{
-		0.018656458,
-
-		1.969338828,
-		1.120102082,
-		0.388717952,
-		0.996398946,
-		1.048137529,
-		1.037079725,
-		-4.535575709,
-		6.381429398,
-
-		-0.139429968,
-		0.763426685
+		-0.040404875,
+		0.957674103,
+		0.765466003,
+		-1.585891794,
+		-1.903482473,
+		-0.441904071,
+		0.79143639,
+		-1.149627531,
+		0.965348065,
+		-0.434908839,
+		-1.332562129,
+		0.838349784
 	};
-	auto bands = FilterParam::gen_bands(FilterType::LPF, 0.2, 0.3);
-	FilterParam fparam(8, 2, bands, 200, 50, 5.0);
+	auto bands = FilterParam::gen_bands(FilterType::LPF, 0.1, 0.145);
+	FilterParam fparam(8, 3, bands, 200, 50, 5.0);
 
-	auto freq_res = fparam.freq_res(coef);
+	auto freq_res = fparam.freq_res_mo(coef);
 
 	for(auto band_res :freq_res)
 	{
@@ -187,4 +219,3 @@ void test_FilterParam_freq_res_no()
 		}
 	}
 }
-
