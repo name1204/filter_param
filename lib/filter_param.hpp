@@ -26,19 +26,21 @@
 #include <complex>
 #include <functional>
 
-
 using namespace std;
 
-template <typename ... Args>
-string format(const string&, Args ...);
-
+template <typename... Args>
+string format(const string &, Args...);
 
 /* フィルタの種類を示す列挙体
  *
  */
 enum class FilterType
 {
-	LPF, HPF, BPF, BEF, Other
+	LPF,
+	HPF,
+	BPF,
+	BEF,
+	Other
 };
 
 /* バンド(周波数帯域)の種別を示す列挙体
@@ -48,7 +50,9 @@ enum class FilterType
  */
 enum class BandType
 {
-	Pass, Stop, Transition
+	Pass,
+	Stop,
+	Transition
 };
 
 /* バンド(周波数帯域)の情報をまとめた構造体
@@ -67,10 +71,10 @@ protected:
 
 public:
 	BandParam(BandType input_type, double input_left, double input_right)
-	:band_type(input_type), left_side(0.0), right_side(0.0)
+		: band_type(input_type), left_side(0.0), right_side(0.0)
 	{
 		// バンドの条件に合わないとき、エラー終了
-		if(input_left < 0.0 || input_left > input_right || input_right > 0.5)
+		if (input_left < 0.0 || input_left > input_right || input_right > 0.5)
 		{
 			fprintf(stderr, "Error: [%s l.%d]Band edge is illegal(left :%6.3f, right :%6.3f)\n",
 					__FILE__, __LINE__, input_left, input_right);
@@ -81,10 +85,10 @@ public:
 		right_side = input_right;
 	}
 
-	BandType type(){ return band_type; }
-	double left(){ return left_side; }
-	double right(){ return right_side; }
-	double width(){ return right_side - left_side; }
+	BandType type() { return band_type; }
+	double left() { return left_side; }
+	double right() { return right_side; }
+	double width() { return right_side - left_side; }
 	string sprint();
 };
 
@@ -101,8 +105,8 @@ protected:
 	double threshold_riple;
 
 	// 内部パラメータ
-	vector<vector<complex<double>>> csw;		// 複素正弦波e^-jωを周波数帯域別に格納
-	vector<vector<complex<double>>> csw2;		// 複素正弦波e^-j2ωを周波数帯域別に格納
+	vector<vector<complex<double>>> csw;  // 複素正弦波e^-jωを周波数帯域別に格納
+	vector<vector<complex<double>>> csw2; // 複素正弦波e^-j2ωを周波数帯域別に格納
 
 	function<vector<vector<complex<double>>>(vector<double>&)> freq_res_func;
 
@@ -117,7 +121,9 @@ protected:
 
 public:
 	FilterParam(unsigned int, unsigned int, vector<BandParam>,
-			unsigned int, unsigned int, double);
+				unsigned int, unsigned int, double);
+
+	vector<vector<complex<double>>> freq_res_mo(vector<double> &coef); // 周波数特性計算関数
 
 	// get function
 	unsigned int pole_order()
@@ -127,13 +133,21 @@ public:
 	unsigned int opt_order()
 	{ return 1 + n_order + m_order; }
 	vector<BandParam> fbands()
-	{ return bands; }
+	{
+		return bands;
+	}
 	unsigned int partition_approx()
-	{ return nsplit_approx; }
+	{
+		return nsplit_approx;
+	}
 	unsigned int partition_transition()
-	{ return nsplit_transition; }
+	{
+		return nsplit_transition;
+	}
 	double gd()
-	{ return group_delay; }
+	{
+		return group_delay;
+	}
 
 	// set function
 	void set_threshold_riple(double input)
@@ -146,74 +160,65 @@ public:
 	vector<vector<complex<double>>> freq_res_no(vector<double>&);    // 周波数特性計算関数
 
 	// static function
-	static vector<FilterParam> read_csv(string&);
+	static vector<FilterParam> read_csv(string &);
 
-	template<typename... Args>
+	template <typename... Args>
 	static vector<BandParam> gen_bands(FilterType, Args...);
-	static FilterType analyze_type(string&);
-	static vector<double> analyze_edges(string&);
-	static vector<complex<double>> gen_csw(BandParam&, unsigned int);
-	static vector<complex<double>> gen_csw2(BandParam&, unsigned int);
+	static FilterType analyze_type(string &);
+	static vector<double> analyze_edges(string &);
+	static vector<complex<double>> gen_csw(BandParam &, unsigned int);
+	static vector<complex<double>> gen_csw2(BandParam &, unsigned int);
 };
-
-
-
-
-
-
-
-
 
 //-------template function---------------------------------------
 
-template <typename ... Args>
-string format(const string& fmt, Args ... args )
+template <typename... Args>
+string format(const string &fmt, Args... args)
 {
-    size_t len = snprintf( nullptr, 0, fmt.c_str(), args ... );
-    vector<char> buf(len + 1);
-    snprintf(&buf[0], len + 1, fmt.c_str(), args ... );
-    return string(&buf[0], &buf[0] + len);
+	size_t len = snprintf(nullptr, 0, fmt.c_str(), args...);
+	vector<char> buf(len + 1);
+	snprintf(&buf[0], len + 1, fmt.c_str(), args...);
+	return string(&buf[0], &buf[0] + len);
 }
 
-template<typename... Args>
-vector<BandParam> FilterParam::gen_bands
-(FilterType ftype, Args... edges)
+template <typename... Args>
+vector<BandParam> FilterParam::gen_bands(FilterType ftype, Args... edges)
 {
 	vector<BandParam> bands;
 
-	switch(ftype)
+	switch (ftype)
 	{
-		case FilterType::LPF:
+	case FilterType::LPF:
+	{
+		int nedge = sizeof...(edges);
+		if (nedge != 2)
 		{
-			int nedge = sizeof...(edges);
-			if(nedge != 2)
-			{
-				fprintf(stderr, "Error: [%s l.%d]Number of edge is only 2.(input :%d)\n",
-						__FILE__, __LINE__, nedge);
-				exit(EXIT_FAILURE);
-			}
+			fprintf(stderr, "Error: [%s l.%d]Number of edge is only 2.(input :%d)\n",
+					__FILE__, __LINE__, nedge);
+			exit(EXIT_FAILURE);
+		}
 
-			double edge[] = { edges... };
-			bands.emplace_back(BandParam(BandType::Pass, 0.0, edge[0]));
-			bands.emplace_back(BandParam(BandType::Transition, edge[0], edge[1]));
-			bands.emplace_back(BandParam(BandType::Stop, edge[1], 0.5));
-			break;
-		}
-		case FilterType::Other:
-		{
-			fprintf(stderr, "Error: [%s l.%d]Other type filter can't use this function. "
-					"Please, make `vector<BandParam>` your self.\n",
-					__FILE__, __LINE__);
-			exit(EXIT_FAILURE);
-			break;
-		}
-		default:
-		{
-			fprintf(stderr, "Error: [%s l.%d]It has not been implement yet.\n",
-					__FILE__, __LINE__);
-			exit(EXIT_FAILURE);
-			break;
-		}
+		double edge[] = {edges...};
+		bands.emplace_back(BandParam(BandType::Pass, 0.0, edge[0]));
+		bands.emplace_back(BandParam(BandType::Transition, edge[0], edge[1]));
+		bands.emplace_back(BandParam(BandType::Stop, edge[1], 0.5));
+		break;
+	}
+	case FilterType::Other:
+	{
+		fprintf(stderr, "Error: [%s l.%d]Other type filter can't use this function. "
+						"Please, make `vector<BandParam>` your self.\n",
+				__FILE__, __LINE__);
+		exit(EXIT_FAILURE);
+		break;
+	}
+	default:
+	{
+		fprintf(stderr, "Error: [%s l.%d]It has not been implement yet.\n",
+				__FILE__, __LINE__);
+		exit(EXIT_FAILURE);
+		break;
+	}
 	}
 
 	return bands;
