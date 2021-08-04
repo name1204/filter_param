@@ -411,3 +411,40 @@ vector<vector<complex<double>>> FilterParam::freq_res_se(vector<double>& coef)
 }
 
 
+vector<vector<complex<double>>> FilterParam::freq_res_no(vector<double>& coef)    // 周波数特性計算関数
+{
+	vector<vector<complex<double>>> freq;
+	vector<vector<complex<double>>> freq_denominator;
+	vector<vector<complex<double>>> freq_numerator;
+	complex<double> one(1.0 , 0.0);
+
+    for(unsigned int i = 0; i < bands.size() ; ++i)    // 周波数帯域のループ(L.P.F.なら３つ)
+    {
+      // csw.at(i), csw2.at(i), bands.at(i)がその周波数帯域で使う値に
+      // cswは複素正弦波、e^-jω
+      
+      for(unsigned int j = 0; j < csw.at(i).size() ; ++j)    // 周波数帯域内の分割数によるループ
+      {
+		//coef[0]=a_0,coef[1]=a_1,coef[2]=b_1,coef[3]=a_2,coef[4]=b_2...etc
+		//奇数はa,偶数はb
+
+	    freq_numerator.at(i).at(j) = one + coef[1] * csw.at(i).at(j);
+		  for(unsigned int N = 2; N < coef.size() ; ++N)	//フィルタ係数の計算用ループ(分子)
+		  {
+			if(N % 2 == 0)
+			freq_numerator.at(i).at(j) = freq_numerator.at(i).at(j) * (one + coef[2 * N - 1] * csw.at(i).at(j) + coef[2 * N + 1] * csw2.at(i).at(j));
+		  }
+
+		freq_denominator.at(i).at(j) = one + coef[2] * csw.at(i).at(j);
+		  for(unsigned int M = 2; M < coef.size() ; ++M)	//フィルタ係数の計算用ループ(分母)
+		  {
+			if(M % 2 == 0)
+			freq_denominator.at(i).at(j) = freq_denominator.at(i).at(j) * (one + coef[2 * M] * csw.at(i).at(j) + coef[2 * M + 2] * csw2.at(i).at(j));
+		  }
+
+			freq.at(i).at(j) = coef[0] * freq_numerator.at(i).at(j) / freq_denominator.at(i).at(j);
+
+		}
+	 } 
+  return freq ;
+}
