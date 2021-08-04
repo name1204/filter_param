@@ -109,6 +109,7 @@ public:
 	FilterParam(unsigned int, unsigned int, vector<BandParam>,
 			unsigned int, unsigned int, double);
 
+
 	// get function
 	unsigned int pole_order()
 	{ return n; }
@@ -124,6 +125,8 @@ public:
 	{ return nsplit_transition; }
 	double gd()
 	{ return group_delay; }
+
+	vector<vector<complex<double>>> freq_res(vector<double>&);	//周波数特性計算用関数
 
 	// static function
 	static vector<FilterParam> read_csv(string&);
