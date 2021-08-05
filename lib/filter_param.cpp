@@ -161,8 +161,6 @@ FilterParam::FilterParam
 		csw.emplace_back(FilterParam::gen_csw(bands.at(i), split.at(i)));
 		csw2.emplace_back(FilterParam::gen_csw2(bands.at(i), split.at(i)));
 	}
-
-	printf("%d, %d, %d\n", split.at(0), split.at(1), split.at(2));
 }
 
 vector<FilterParam> FilterParam::read_csv(string& filename)
@@ -295,9 +293,7 @@ vector<complex<double>> FilterParam::gen_csw(BandParam& bp, unsigned int nsplit)
 
 	for(unsigned int i = 0 ; i < nsplit ; ++i)
 	{
-		csw.emplace_back(
-			exp( complex<double>(1.0 ,dpi*(left + step_size*(double)i) ) )
-			);
+		csw.emplace_back( polar(1.0 ,dpi*(left + step_size*(double)i)) );
 	}
 
 	return csw;
@@ -313,9 +309,7 @@ vector<complex<double>> FilterParam::gen_csw2(BandParam& bp, unsigned int nsplit
 
 	for(unsigned int i = 0 ; i < nsplit ; ++i)
 	{
-		csw2.emplace_back(
-			exp( complex<double>(1.0 ,dpi*(left + step_size*(double)i) ) )
-			);
+		csw2.emplace_back( polar(1.0 ,dpi*(left + step_size*(double)i)) );
 	}
 
 	return csw2;
