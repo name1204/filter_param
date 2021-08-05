@@ -11,6 +11,8 @@
 #ifndef FILTER_PARAM_HPP_
 #define FILTER_PARAM_HPP_
 
+#define _USE_MATH_DEFINES
+
 #include <cstdio>
 #include <cstdlib>
 #include <cmath>

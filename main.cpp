@@ -15,12 +15,13 @@ void test_BandParam_new();
 void test_Band_generator();
 void test_analyze_edges();
 void test_FilterParam_read_csv();
+void test_FilterParam_csw();
 
 int main(void)
 {
 	printf("example run\n");
 
-	test_BandParam_new();
+	test_FilterParam_csw();
 
 	return 0;
 }
@@ -97,4 +98,22 @@ void test_FilterParam_read_csv()
 		}
 		printf("---------------------------\n");
 	}
+}
+
+void test_FilterParam_csw()
+{
+	auto band = BandParam(BandType::Pass, 0.0, 0.2);
+	auto csw = FilterParam::gen_csw(band, 100);
+	auto csw2 = FilterParam::gen_csw2(band, 100);
+
+	for(auto z :csw)
+	{
+		printf("%6f %6f\n", z.real(), z.imag());
+	}
+	printf("\n\n\n\n");
+	for(auto z :csw2)
+	{
+		printf("%6f %6f\n", z.real(), z.imag());
+	}
+
 }
