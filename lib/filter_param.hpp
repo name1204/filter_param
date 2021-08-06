@@ -105,10 +105,13 @@ protected:
 
 	function<vector<vector<complex<double>>>(vector<double>&)> freq_res_func;
 
+	// 内部メソッド
 	FilterParam()
 	:n_order(0), m_order(0),
 	 nsplit_approx(0), nsplit_transition(0), group_delay(0.0)
 	{}
+	vector<vector<complex<double>>> freq_res_se(vector<double>&);
+
 
 public:
 	FilterParam(unsigned int, unsigned int, vector<BandParam>,
@@ -133,7 +136,6 @@ public:
 	// normal function
 	vector<vector<complex<double>>> freq_res(vector<double>& coef)
 	{ return this->freq_res_func(coef); }
-	vector<vector<complex<double>>> freq_res_se(vector<double>&);
 
 	// static function
 	static vector<FilterParam> read_csv(string&);
