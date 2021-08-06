@@ -136,7 +136,7 @@ public:
 	// normal function
 	vector<vector<complex<double>>> freq_res(vector<double>& coef)
 	{ return this->freq_res_func(coef); }
-	vector<vector<complex<double>>> freq_res_se(vector<double>&);
+	
 	vector<vector<complex<double>>> freq_res_no(vector<double>&);    // 周波数特性計算関数
 
 	// static function
