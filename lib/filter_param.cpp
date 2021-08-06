@@ -61,10 +61,10 @@ string BandParam::sprint()
 }
 
 FilterParam::FilterParam
-(unsigned int pole, unsigned int zero, vector<BandParam> input_bands,
+(unsigned int zero, unsigned int pole, vector<BandParam> input_bands,
 		unsigned int input_nsplit_approx, unsigned int input_nsplit_transition,
 		double gd)
-:n(pole), m(zero), bands(input_bands),
+:n_order(zero), m_order(pole), bands(input_bands),
  nsplit_approx(input_nsplit_approx), nsplit_transition(input_nsplit_transition),
  group_delay(gd)
 {
@@ -160,6 +160,32 @@ FilterParam::FilterParam
 	{
 		csw.emplace_back(FilterParam::gen_csw(bands.at(i), split.at(i)));
 		csw2.emplace_back(FilterParam::gen_csw2(bands.at(i), split.at(i)));
+	}
+
+	// decide using function
+	if((n_order % 2) == 0)
+	{
+		if((m_order % 2) == 0)
+		{
+			freq_res_func = bind(&FilterParam::freq_res_se, this, placeholders::_1);
+		}
+		else
+		{
+			printf("mo is unimplemented.\n");
+		}
+	}
+	else
+	{
+		if((m_order % 2) == 0)
+		{
+			printf("so is unimplemented.\n");
+
+		}
+		else
+		{
+			printf("no is unimplemented.\n");
+
+		}
 	}
 }
 
@@ -289,7 +315,7 @@ vector<complex<double>> FilterParam::gen_csw(BandParam& bp, unsigned int nsplit)
 		csw.reserve(nsplit);
 	double step_size = bp.width() / nsplit;
 	double left = bp.left();
-	const double dpi = 2.0*M_PI;			// double pi
+	const double dpi = -2.0*M_PI;			// double pi
 
 	for(unsigned int i = 0 ; i < nsplit ; ++i)
 	{
@@ -305,7 +331,7 @@ vector<complex<double>> FilterParam::gen_csw2(BandParam& bp, unsigned int nsplit
 		csw2.reserve(nsplit);
 	double step_size = bp.width() / nsplit;
 	double left = bp.left();
-	const double dpi = 4.0*M_PI;			// quadrical pi
+	const double dpi = -4.0*M_PI;			// quadrical pi
 
 	for(unsigned int i = 0 ; i < nsplit ; ++i)
 	{
@@ -314,4 +340,37 @@ vector<complex<double>> FilterParam::gen_csw2(BandParam& bp, unsigned int nsplit
 
 	return csw2;
 }
+
+vector<vector<complex<double>>> FilterParam::freq_res_se(vector<double>& coef)
+{
+	vector<vector<complex<double>>> res;
+		res.reserve(bands.size());
+	complex<double> one(1.0 , 0.0);
+
+	for(unsigned int i = 0; i < bands.size() ; ++i)    // 周波数帯域のループ
+	{
+		vector<complex<double>> band_res;
+			band_res.reserve(csw.at(i).size());
+
+		for(unsigned int j = 0; j < csw.at(i).size() ; ++j)    // 周波数帯域内の分割数によるループ
+		{
+			complex<double> frac_over(1.0, 1.0);
+			complex<double> frac_under(1.0, 1.0);
+
+			for(unsigned int n = 1; n < n_order ; n += 2)
+			{
+				frac_over *= one + coef.at(n)*csw.at(i).at(j) + coef.at(n + 1)*csw2.at(i).at(j);
+			}
+			for(unsigned int m = n_order + 1; m < this->opt_order() ; m += 2)
+			{
+				frac_under *= one + coef.at(m)*csw.at(i).at(j) + coef.at(m + 1)*csw2.at(i).at(j);
+			}
+			band_res.emplace_back( coef.at(0)*(frac_over/frac_under) );
+		}
+		res.emplace_back(band_res);
+	}
+
+	return res;
+}
+
 

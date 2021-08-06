@@ -16,12 +16,13 @@ void test_Band_generator();
 void test_analyze_edges();
 void test_FilterParam_read_csv();
 void test_FilterParam_csw();
+void test_FilterParam_freq_res_se();
 
 int main(void)
 {
 	printf("example run\n");
 
-	test_FilterParam_csw();
+	test_FilterParam_freq_res_se();
 
 	return 0;
 }
@@ -116,4 +117,34 @@ void test_FilterParam_csw()
 		printf("%6f %6f\n", z.real(), z.imag());
 	}
 
+}
+
+void test_FilterParam_freq_res_se()
+{
+	vector<double> coef
+	{
+		0.018656458,
+		1.969338828,
+		1.120102082,
+		0.388717952,
+		0.996398946,
+		1.048137529,
+		1.037079725,
+		-4.535575709,
+		6.381429398,
+		-0.139429968,
+		0.763426685
+	};
+	auto bands = FilterParam::gen_bands(FilterType::LPF, 0.2, 0.3);
+	FilterParam fparam(8, 2, bands, 200, 50, 5.0);
+
+	auto freq_res = fparam.freq_res(coef);
+
+	for(auto band_res :freq_res)
+	{
+		for(auto res :band_res)
+		{
+			printf("%f\n", abs(res));
+		}
+	}
 }

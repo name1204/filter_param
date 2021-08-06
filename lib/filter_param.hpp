@@ -24,6 +24,7 @@
 #include <string>
 #include <regex>
 #include <complex>
+#include <functional>
 
 
 using namespace std;
@@ -91,8 +92,8 @@ struct FilterParam
 {
 protected:
 	// フィルタパラメータ
-	unsigned int n;
-	unsigned int m;
+	unsigned int n_order;
+	unsigned int m_order;
 	vector<BandParam> bands;
 	unsigned int nsplit_approx;
 	unsigned int nsplit_transition;
@@ -102,8 +103,10 @@ protected:
 	vector<vector<complex<double>>> csw;		// 複素正弦波e^-jωを周波数帯域別に格納
 	vector<vector<complex<double>>> csw2;		// 複素正弦波e^-j2ωを周波数帯域別に格納
 
+	function<vector<vector<complex<double>>>(vector<double>&)> freq_res_func;
+
 	FilterParam()
-	:n(0), m(0),
+	:n_order(0), m_order(0),
 	 nsplit_approx(0), nsplit_transition(0), group_delay(0.0)
 	{}
 
@@ -113,11 +116,11 @@ public:
 
 	// get function
 	unsigned int pole_order()
-	{ return n; }
+	{ return m_order; }
 	unsigned int zero_order()
-	{ return m; }
+	{ return n_order; }
 	unsigned int opt_order()
-	{ return 1 + n + m; }
+	{ return 1 + n_order + m_order; }
 	vector<BandParam> fbands()
 	{ return bands; }
 	unsigned int partition_approx()
@@ -126,6 +129,11 @@ public:
 	{ return nsplit_transition; }
 	double gd()
 	{ return group_delay; }
+
+	// normal function
+	vector<vector<complex<double>>> freq_res(vector<double>& coef)
+	{ return this->freq_res_func(coef); }
+	vector<vector<complex<double>>> freq_res_se(vector<double>&);
 
 	// static function
 	static vector<FilterParam> read_csv(string&);
