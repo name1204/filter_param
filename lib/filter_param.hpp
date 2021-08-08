@@ -98,6 +98,7 @@ protected:
 	unsigned int nsplit_approx;
 	unsigned int nsplit_transition;
 	double group_delay;
+	double threshold_riple;
 
 	// 内部パラメータ
 	vector<vector<complex<double>>> csw;		// 複素正弦波e^-jωを周波数帯域別に格納
@@ -108,7 +109,8 @@ protected:
 	// 内部メソッド
 	FilterParam()
 	:n_order(0), m_order(0),
-	 nsplit_approx(0), nsplit_transition(0), group_delay(0.0)
+	 nsplit_approx(0), nsplit_transition(0), group_delay(0.0),
+	 threshold_riple(1.0)
 	{}
 	vector<vector<complex<double>>> freq_res_se(vector<double>&);
 
@@ -134,7 +136,10 @@ public:
 	double gd()
 	{ return group_delay; }
 
-	vector<vector<complex<double>>> freq_res(vector<double>&);	//周波数特性計算用関数
+	// set function
+	void set_threshold_riple(double input)
+	{ threshold_riple = input; }
+
 	// normal function
 	vector<vector<complex<double>>> freq_res(vector<double>& coef)
 	{ return this->freq_res_func(coef); }
