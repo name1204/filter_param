@@ -211,7 +211,7 @@ void test_FilterParam_freq_res_mo()
 	auto bands = FilterParam::gen_bands(FilterType::LPF, 0.1, 0.145);
 	FilterParam fparam(8, 3, bands, 200, 50, 5.0);
 
-	auto freq_res = fparam.freq_res_mo(coef);
+	auto freq_res = fparam.freq_res(coef);
 
 	for(auto band_res :freq_res)
 	{

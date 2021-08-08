@@ -169,7 +169,7 @@ FilterParam::FilterParam
 		}
 		else
 		{
-			printf("mo is unimplemented.\n");
+			freq_res_func = bind(&FilterParam::freq_res_mo, this,placeholders::_1);
 		}
 	}
 	else
