@@ -117,13 +117,12 @@ protected:
 	 threshold_riple(1.0)
 	{}
 	vector<vector<complex<double>>> freq_res_se(vector<double>&);
-
+	vector<vector<complex<double>>> freq_res_mo(vector<double>&); // 周波数特性計算関数
 
 public:
 	FilterParam(unsigned int, unsigned int, vector<BandParam>,
 				unsigned int, unsigned int, double);
 
-	vector<vector<complex<double>>> freq_res_mo(vector<double> &coef); // 周波数特性計算関数
 
 	// get function
 	unsigned int pole_order()
