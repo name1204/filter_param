@@ -96,6 +96,7 @@ struct FilterParam
 {
 protected:
 	// フィルタパラメータ
+
 	unsigned int n_order;
 	unsigned int m_order;
 	vector<BandParam> bands;
@@ -105,19 +106,22 @@ protected:
 	double threshold_riple;
 
 	// 内部パラメータ
-	vector<vector<complex<double>>> csw;  // 複素正弦波e^-jωを周波数帯域別に格納
-	vector<vector<complex<double>>> csw2; // 複素正弦波e^-j2ωを周波数帯域別に格納
+	
+	vector<vector<complex<double>>> csw;		// 複素正弦波e^-jωを周波数帯域別に格納
+	vector<vector<complex<double>>> csw2;		// 複素正弦波e^-j2ωを周波数帯域別に格納
 
 	function<vector<vector<complex<double>>>(vector<double>&)> freq_res_func;
 
 	// 内部メソッド
+
 	FilterParam()
 	:n_order(0), m_order(0),
 	 nsplit_approx(0), nsplit_transition(0), group_delay(0.0),
 	 threshold_riple(1.0)
 	{}
 	vector<vector<complex<double>>> freq_res_se(vector<double>&);
-	vector<vector<complex<double>>> freq_res_mo(vector<double>&); // 周波数特性計算関数
+	vector<vector<complex<double>>> freq_res_no(vector<double>&);
+	vector<vector<complex<double>>> freq_res_mo(vector<double>&);
 
 public:
 	FilterParam(unsigned int, unsigned int, vector<BandParam>,
@@ -125,6 +129,7 @@ public:
 
 
 	// get function
+
 	unsigned int pole_order()
 	{ return m_order; }
 	unsigned int zero_order()
@@ -149,17 +154,29 @@ public:
 	}
 
 	// set function
+
 	void set_threshold_riple(double input)
 	{ threshold_riple = input; }
 
 	// normal function
+	/* フィルタ構造体
+	 *   周波数特性計算関数
+	 *   コンストラクタに与えられた周波数帯域に
+	 *   応じて，縦続型IIRフィルタの周波数特性を計算する
+	 *   また，係数列も次数によって適宜分割される
+	 *
+	 *   # 引数
+	 *   vector<double> coef : 係数列(a0, a1, a2[0], a2[1],..., b1, b2[0], b2[1],...)
+	 *   #返り値
+	 *   vector<vector<complex<double>>> response : 周波数帯域-周波数分割数の2重配列
+	 */
 	vector<vector<complex<double>>> freq_res(vector<double>& coef)
 	{ return this->freq_res_func(coef); }
 	
-	vector<vector<complex<double>>> freq_res_no(vector<double>&);    // 周波数特性計算関数
 
 	// static function
-	static vector<FilterParam> read_csv(string &);
+	
+	static vector<FilterParam> read_csv(string&);
 
 	template <typename... Args>
 	static vector<BandParam> gen_bands(FilterType, Args...);
@@ -170,7 +187,9 @@ public:
 };
 
 //-------template function---------------------------------------
-
+/* # String format function
+ *
+ */
 template <typename... Args>
 string format(const string &fmt, Args... args)
 {
@@ -180,6 +199,19 @@ string format(const string &fmt, Args... args)
 	return string(&buf[0], &buf[0] + len);
 }
 
+/* # フィルタ構造体
+ *   フィルタのタイプと周波数帯域端により，
+ *   連続した周波数帯域の配列を生成する
+ *
+ * # 引数
+ * FilterType ftype : フィルタタイプ(L.P.F.やH.P.F.など)
+ * Args... edges : doubleの可変長引数を想定
+ *                   フィルタタイプに合わない帯域端，
+ *                   フィルタタイプが`Other`の場合には，
+ *                   異常終了する
+ * # 返り値
+ * vector<BandParam> bands : 連続した周波数帯域の配列
+ */
 template <typename... Args>
 vector<BandParam> FilterParam::gen_bands(FilterType ftype, Args... edges)
 {
@@ -192,8 +224,9 @@ vector<BandParam> FilterParam::gen_bands(FilterType ftype, Args... edges)
 		int nedge = sizeof...(edges);
 		if (nedge != 2)
 		{
-			fprintf(stderr, "Error: [%s l.%d]Number of edge is only 2.(input :%d)\n",
-					__FILE__, __LINE__, nedge);
+			fprintf(stderr, 
+				"Error: [%s l.%d]It has not been implement yet.\n",
+				__FILE__, __LINE__);
 			exit(EXIT_FAILURE);
 		}
 

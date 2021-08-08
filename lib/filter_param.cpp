@@ -61,8 +61,8 @@ string BandParam::sprint()
 
 FilterParam::FilterParam
 (unsigned int zero, unsigned int pole, vector<BandParam> input_bands,
-		unsigned int input_nsplit_approx, unsigned int input_nsplit_transition,
-		double gd)
+	unsigned int input_nsplit_approx, unsigned int input_nsplit_transition,
+	double gd)
 :n_order(zero), m_order(pole), bands(input_bands),
  nsplit_approx(input_nsplit_approx), nsplit_transition(input_nsplit_transition),
  group_delay(gd),
@@ -185,7 +185,30 @@ FilterParam::FilterParam
 	}
 }
 
-vector<FilterParam> FilterParam::read_csv(string &filename)
+/* # フィルタ構造体
+ *   CSVファイルから所望特性を読み取る関数
+ *   複数の所望特性を読み取り，フィルタ構造体の配列で返却
+ *   CSVファイルの書式は以下の通り
+ *
+ *     No, Numerator, Denominator, State, GroupDelay, NsplitApprox, NsplitTransition
+ *         No : 所望特性のナンバリング
+ *         Numerator : 分子次数
+ *         Denominator : 分母次数
+ *         State : フィルタの特性情報(L.P.F.など)
+ *         GroupDelay : 所望群遅延
+ *         NsplitApprox : 近似帯域の分割数
+ *         NsplitTransition : 遷移域の分割数
+ *
+ *   vectorのインデックス = Noなので
+ *   "No"は読みこまない
+ *   また，１行目はヘッダなので読み飛ばす
+ *
+ * # 引数
+ * string& filename : CSVファイルのパス(exeからの相対パスでも可能)
+ * # 返り値
+ * vector<FilterParam> params : CSVファイルにある分，全部の所望特性を格納した配列
+ */
+vector<FilterParam> FilterParam::read_csv(string& filename)
 {
 	vector<FilterParam> filter_params;
 	ifstream ifs(filename);
@@ -207,39 +230,39 @@ vector<FilterParam> FilterParam::read_csv(string &filename)
 
 		switch (type)
 		{
-		case FilterType::LPF:
-		{
-			auto edges = FilterParam::analyze_edges(vals.at(3));
-			if (edges.size() != 2)
+			case FilterType::LPF:
 			{
-				fprintf(stderr, "Error: [%s l.%d]Format of filter state is illegal.(input : \"%s\")\n"
-								"If you assign filter type L.P.F. , length of edges is only 2.\n",
-						__FILE__, __LINE__, vals.at(3).c_str());
+				auto edges = FilterParam::analyze_edges(vals.at(3));
+				if (edges.size() != 2)
+				{
+					fprintf(stderr,
+							"Error: [%s l.%d]Format of filter state is illegal.(input : \"%s\")\n"
+									"If you assign filter type L.P.F. , length of edges is only 2.\n",
+							__FILE__, __LINE__, vals.at(3).c_str());
+					exit(EXIT_FAILURE);
+				}
+				bands = FilterParam::gen_bands(FilterType::LPF, edges.at(0), edges.at(1));
+				break;
+			}
+			default:
+			{
+				fprintf(stderr, 
+					"Error: [%s l.%d]It has not been implement yet.(input : \"%s\")\n",
+					__FILE__, __LINE__, vals.at(3).c_str());
 				exit(EXIT_FAILURE);
 			}
-			bands = FilterParam::gen_bands(FilterType::LPF, edges.at(0), edges.at(1));
-			break;
-		}
-		default:
-		{
-			fprintf(stderr, "Error: [%s l.%d]It has not been implement yet.(input : \"%s\")\n",
-					__FILE__, __LINE__, vals.at(3).c_str());
-			exit(EXIT_FAILURE);
-		}
 		}
 
 		filter_params.emplace_back(
-				FilterParam(atoi(vals.at(1).c_str()), atoi(vals.at(2).c_str()),
-						bands, atoi(vals.at(5).c_str()),
-						atoi(vals.at(6).c_str()), atof(vals.at(4).c_str())));
+			FilterParam(atoi(vals.at(1).c_str()), atoi(vals.at(2).c_str()),
+							bands, atoi(vals.at(5).c_str()),
+							atoi(vals.at(6).c_str()), atof(vals.at(4).c_str())));
 	}
-
-	// 次数に応じた関数を格納
 
 	return filter_params;
 }
 
-/* フィルタのタイプを簡易入力する
+/* フィルタのタイプを簡易入力(文字列)する
  *   LPF(0.2, 0.3) : L.P.F.で通過域端 0.2, 阻止域端 0.3のフィルタ
  *
  *   Other(path) : その他の特性のフィルタ。pathは周波数帯域の情報を記したファイルへの相対パス
@@ -281,6 +304,15 @@ FilterType FilterParam::analyze_type(string &input)
 	return type;
 }
 
+/* # フィルタ構造体
+ *   フィルタの周波数帯域端を文字列から分離する
+ *   LPF(0.2, 0.3) : 帯域域端 0.2, 帯域端 0.3
+ *
+ * # 引数
+ * string& input : 解析する文字列
+ * # 返り値
+ * vector<double> edge : 解析・分離した周波数帯域端の配列
+ */
 vector<double> FilterParam::analyze_edges(string &input)
 {
 	vector<double> edge;
@@ -304,10 +336,23 @@ vector<double> FilterParam::analyze_edges(string &input)
 	return edge;
 }
 
+/* # フィルタ構造体
+ *   複素正弦波の基本波(e^-jω)を生成する関数
+ *   刻みは引数の周波数帯域幅と分割数に応じる
+ *
+ * # 引数
+ * BandParam& bp : 周波数帯域情報をもった構造体
+ * unsigned int nsplit : 周波数帯域の分割数
+ * # 返り値
+ * vector<complex<double>> csw : 引数の周波数帯域幅と分割数に応じた
+ *                                        複素正弦波の配列
+ *                                        csw = Complex Sin Wave
+ *
+ */
 vector<complex<double>> FilterParam::gen_csw(BandParam &bp, unsigned int nsplit)
 {
 	vector<complex<double>> csw;
-	csw.reserve(nsplit);
+		csw.reserve(nsplit);
 	double step_size = bp.width() / nsplit;
 	double left = bp.left();
 	const double dpi = -2.0 * M_PI;			// double pi
@@ -320,6 +365,19 @@ vector<complex<double>> FilterParam::gen_csw(BandParam &bp, unsigned int nsplit)
 	return csw;
 }
 
+/* # フィルタ構造体
+ *   複素正弦波の第２次高調波(e^-j2ω)を生成する関数
+ *   刻みは引数の周波数帯域幅と分割数に応じる
+ *
+ * # 引数
+ * BandParam& bp : 周波数帯域情報をもった構造体
+ * unsigned int nsplit : 周波数帯域の分割数
+ * # 返り値
+ * vector<complex<double>> csw2 : 引数の周波数帯域幅と分割数に応じた
+ *                                        複素正弦波の配列
+ *                                        csw2 = Complex Sin Wave 2(second)
+ *
+ */
 vector<complex<double>> FilterParam::gen_csw2(BandParam &bp,
 		unsigned int nsplit)
 {
@@ -341,7 +399,6 @@ vector<vector<complex<double>>> FilterParam::freq_res_se(vector<double> &coef)
 {
 	vector<vector<complex<double>>> res;
 		res.reserve(bands.size());
-	const complex<double> one(1.0, 0.0);
 
 	for (unsigned int i = 0; i < bands.size(); ++i)    // 周波数帯域のループ
 	{
@@ -355,13 +412,13 @@ vector<vector<complex<double>>> FilterParam::freq_res_se(vector<double> &coef)
 
 			for (unsigned int n = 1; n < n_order; n += 2)
 			{
-				frac_over *= one + coef.at(n)*csw.at(i).at(j) + coef.at(n + 1)*csw2.at(i).at(j);
+				frac_over *= 1.0 + coef.at(n)*csw.at(i).at(j) + coef.at(n + 1)*csw2.at(i).at(j);
 			}
 			for (unsigned int m = n_order + 1; m < opt_order(); m += 2)
 			{
-				frac_under *= one + coef.at(m)*csw.at(i).at(j) + coef.at(m + 1)*csw2.at(i).at(j);
+				frac_under *= 1.0 + coef.at(m)*csw.at(i).at(j) + coef.at(m + 1)*csw2.at(i).at(j);
 			}
-			band_res.emplace_back(coef.at(0) * (frac_over / frac_under));
+			band_res.emplace_back( coef.at(0)*(frac_over / frac_under) );
 		}
 		res.emplace_back(band_res);
 	}
@@ -373,7 +430,6 @@ vector<vector<complex<double>>> FilterParam::freq_res_no(vector<double> &coef)
 {
 	vector<vector<complex<double>>> freq;
 		freq.reserve(bands.size());
-	const complex<double> one(1.0, 0.0);
 
 	for (unsigned int i = 0; i < bands.size(); ++i)    // 周波数帯域のループ
 	{
@@ -385,17 +441,17 @@ vector<vector<complex<double>>> FilterParam::freq_res_no(vector<double> &coef)
 			complex<double> freq_denominator(1.0, 1.0);
 			complex<double> freq_numerator(1.0, 1.0);
 
-			freq_numerator *= one + (coef.at(1) * csw.at(i).at(j));
+			freq_numerator *= 1.0 + coef.at(1)*csw.at(i).at(j);
 			for (unsigned int n = 2; n < n_order; n += 2)		//分子の総乗ループ
 			{
-				freq_numerator *= (one + coef.at(n)*csw.at(i).at(j) + coef.at(n + 1)*csw2.at(i).at(j));
+				freq_numerator *= 1.0 + coef.at(n)*csw.at(i).at(j) + coef.at(n + 1)*csw2.at(i).at(j);
 			}
 			for (unsigned int m = n_order + 1; m < opt_order(); m += 2)		//分母の総乗ループ
 			{
-				freq_denominator *= (one + coef.at(m)*csw.at(i).at(j) + coef.at(m + 1)*csw2.at(i).at(j));
+				freq_denominator *= 1.0 + coef.at(m)*csw.at(i).at(j) + coef.at(m + 1)*csw2.at(i).at(j);
 			}
 
-			freq_band.emplace_back( coef.at(0) * (freq_numerator / freq_denominator));
+			freq_band.emplace_back( coef.at(0)*(freq_numerator / freq_denominator));
 		}
 		freq.emplace_back(freq_band);
 	}
@@ -406,39 +462,29 @@ vector<vector<complex<double>>> FilterParam::freq_res_no(vector<double> &coef)
 vector<vector<complex<double>>> FilterParam::freq_res_mo(vector<double> &coef) // 周波数特性計算関数
 {
 	vector<vector<complex<double>>> freq;
-	freq.reserve(bands.size());
+		freq.reserve(bands.size());
 
-	for (unsigned int i = 0; i < bands.size(); ++i) // 周波数帯域のループ(L.P.F.なら３つ)
+	for (unsigned int i = 0; i < bands.size(); ++i) // 周波数帯域のループ
 	{
-		// csw.at(i), csw2.at(i), bands.at(i)がその周波数帯域で使う値に
-		// cswは複素正弦波、e^-jω
-
 		vector<complex<double>> freq_band;
-		freq_band.reserve(csw.at(i).size());
+			freq_band.reserve(csw.at(i).size());
 
 		for (unsigned int j = 0; j < csw.at(i).size(); ++j) // 周波数帯域内の分割数によるループ
 		{
-			// 2次の分子なら
-			// 1 + coef[0]*csw.at(i).at(j) + coef[1]*csw2.at(i).at(j)
-			// みたいにかける
-			// 係数のインデックスはおかしいけど、適当に埋めてあるだけです
 			complex<double> nume(1.0, 1.0);
+			complex<double> deno(1.0, 1.0);
 
 			for (unsigned int n = 1; n < n_order; n += 2)
 			{
-				nume *= 1.0 + coef[n] * csw.at(i).at(j) + coef[n + 1] * csw2.at(i).at(j);
+				nume *= 1.0 + coef.at(n)*csw.at(i).at(j) + coef.at(n + 1)*csw2.at(i).at(j);
 			}
-
-			complex<double> deno(1.0, 1.0);
-
-			deno *= 1.0 + (coef.at(n_order + 1) * csw.at(i).at(j));
-
-			for (unsigned int m = n_order + 2; m < opt_order(); m += 2) //分母だけ奇数
+			deno *= 1.0 + coef.at(n_order + 1)*csw.at(i).at(j);
+			for (unsigned int m = n_order + 2; m < opt_order(); m += 2)
 			{
-				deno *= 1.0 + coef[m] * csw.at(i).at(j) + coef[m + 1] * csw2.at(i).at(j);
+				deno *= 1.0 + coef.at(m)*csw.at(i).at(j) + coef.at(m + 1)*csw2.at(i).at(j);
 			}
 
-			freq_band.emplace_back(coef.at(0) * nume / deno);
+			freq_band.emplace_back( coef.at(0)*(nume / deno) );
 		}
 		freq.emplace_back(freq_band);
 	}

@@ -33,7 +33,7 @@ int main(void)
  */
 void test_BandParam_new()
 {
-	auto bp = BandParam(BandType::Pass, 0.0, 0.2);
+	auto bp = BandParam(BandType::Pass, 0.0, 0.2175);
 	printf("%s\n", bp.sprint().c_str());
 }
 
