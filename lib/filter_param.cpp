@@ -61,12 +61,14 @@ string BandParam::sprint()
 	return str;
 }
 
-FilterParam::FilterParam(unsigned int zero, unsigned int pole,
-		vector<BandParam> input_bands, unsigned int input_nsplit_approx,
-		unsigned int input_nsplit_transition, double gd) :
-		n_order(zero), m_order(pole), bands(input_bands), nsplit_approx(
-				input_nsplit_approx), nsplit_transition(
-				input_nsplit_transition), group_delay(gd)
+FilterParam::FilterParam
+(unsigned int zero, unsigned int pole, vector<BandParam> input_bands,
+		unsigned int input_nsplit_approx, unsigned int input_nsplit_transition,
+		double gd)
+:n_order(zero), m_order(pole), bands(input_bands),
+ nsplit_approx(input_nsplit_approx), nsplit_transition(input_nsplit_transition),
+ group_delay(gd),
+ threshold_riple(1.0)
 {
 	// 周波数帯域の整合性チェック
 	double band_left = 0.0;
