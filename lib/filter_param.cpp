@@ -436,6 +436,10 @@ vector<vector<complex<double>>> FilterParam::freq_res_no(vector<double> &coef)
 		}
 		freq.emplace_back(freq_band);
 	}
+	
+	return freq;
+}
+
 vector<vector<complex<double>>> FilterParam::freq_res_mo(vector<double> &coef) // 周波数特性計算関数
 {
 	vector<vector<complex<double>>> freq;
@@ -462,9 +466,11 @@ vector<vector<complex<double>>> FilterParam::freq_res_mo(vector<double> &coef) /
 				nume *= 1.0 + coef[n] * csw.at(i).at(j) + coef[n + 1] * csw2.at(i).at(j);
 			}
 
-			complex<double> deno = 1.0 + coef[n_order + 1] * csw.at(i).at(j);
+			complex<double> deno(1.0, 1.0);
 
-			for (unsigned int m = n_order + 2; m < m_order; m += 2) //分母だけ奇数
+			deno *= 1.0 + (coef.at(n_order + 1) * csw.at(i).at(j));
+
+			for (unsigned int m = n_order + 2; m < opt_order(); m += 2) //分母だけ奇数
 			{
 				deno *= 1.0 + coef[m] * csw.at(i).at(j) + coef[m + 1] * csw2.at(i).at(j);
 			}
