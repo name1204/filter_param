@@ -23,9 +23,6 @@ int main(void)
 {
 	printf("example run\n");
 
-	//test_FilterParam_freq_res_se();
-	test_FilterParam_freq_res_no();
-
 	return 0;
 }
 

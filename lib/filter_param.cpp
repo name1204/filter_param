@@ -386,13 +386,13 @@ vector<vector<complex<double>>> FilterParam::freq_res_no(vector<double>& coef)  
 vector<vector<complex<double>>> FilterParam::freq_res_se(vector<double>& coef)
 {
 	vector<vector<complex<double>>> res;
-	res.reserve(bands.size());
-	complex<double> one(1.0, 0.0);
+		res.reserve(bands.size());
+	const complex<double> one(1.0, 0.0);
 
 	for (unsigned int i = 0; i < bands.size(); ++i)    // 周波数帯域のループ
 	{
 		vector<complex<double>> band_res;
-		band_res.reserve(csw.at(i).size());
+			band_res.reserve(csw.at(i).size());
 
 		for (unsigned int j = 0; j < csw.at(i).size(); ++j)  // 周波数帯域内の分割数によるループ
 		{
@@ -403,7 +403,7 @@ vector<vector<complex<double>>> FilterParam::freq_res_se(vector<double>& coef)
 			{
 				frac_over *= one + coef.at(n)*csw.at(i).at(j) + coef.at(n + 1)*csw2.at(i).at(j);
 			}
-			for (unsigned int m = n_order + 1; m < this->opt_order(); m += 2)
+			for (unsigned int m = n_order + 1; m < opt_order(); m += 2)
 			{
 				frac_under *= one + coef.at(m)*csw.at(i).at(j) + coef.at(m + 1)*csw2.at(i).at(j);
 			}
@@ -415,18 +415,16 @@ vector<vector<complex<double>>> FilterParam::freq_res_se(vector<double>& coef)
 	return res;
 }
 
-vector<vector<complex<double>>> FilterParam::freq_res_no(vector<double> &coef) // 周波数特性計算関数
+vector<vector<complex<double>>> FilterParam::freq_res_no(vector<double> &coef)
 {
 	vector<vector<complex<double>>> freq;
-	freq.reserve(bands.size());
-	complex<double> one(1.0, 0.0);
+		freq.reserve(bands.size());
+	const complex<double> one(1.0, 0.0);
 
-	for (unsigned int i = 0; i < bands.size(); ++i)    // 周波数帯域のループ(L.P.F.なら３つ)
+	for (unsigned int i = 0; i < bands.size(); ++i)    // 周波数帯域のループ
 	{
 		vector<complex<double>> freq_band;
-		freq_band.reserve(csw.at(i).size());
-		// csw.at(i), csw2.at(i), bands.at(i)がその周波数帯域で使う値に
-		// cswは複素正弦波、e^-jω
+			freq_band.reserve(csw.at(i).size());
 
 		for (unsigned int j = 0; j < csw.at(i).size(); ++j)  // 周波数帯域内の分割数によるループ
 		{
@@ -434,20 +432,19 @@ vector<vector<complex<double>>> FilterParam::freq_res_no(vector<double> &coef) /
 			complex<double> freq_numerator(1.0, 1.0);
 
 			freq_numerator *= one + (coef.at(1) * csw.at(i).at(j));
-			for (unsigned int N = 2; N < n_order; N += 2)	//フィルタ係数の計算用ループ(分子)
+			for (unsigned int n = 2; n < n_order; n += 2)		//分子の総乗ループ
 			{
-				freq_numerator *= (one + coef.at(N)*csw.at(i).at(j) + coef.at(N + 1)*csw2.at(i).at(j));
+				freq_numerator *= (one + coef.at(n)*csw.at(i).at(j) + coef.at(n + 1)*csw2.at(i).at(j));
 			}
-
-			for (unsigned int M = n_order + 1; M < this->opt_order(); M += 2)//フィルタ係数の計算用ループ(分母)
+			for (unsigned int m = n_order + 1; m < opt_order(); m += 2)		//分母の総乗ループ
 			{
-				freq_denominator *= (one + coef.at(M)*csw.at(i).at(j) + coef.at(M + 1)*csw2.at(i).at(j));
+				freq_denominator *= (one + coef.at(m)*csw.at(i).at(j) + coef.at(m + 1)*csw2.at(i).at(j));
 			}
 
 			freq_band.emplace_back( coef.at(0) * (freq_numerator / freq_denominator));
-
 		}
 		freq.emplace_back(freq_band);
 	}
+
 	return freq;
 }
