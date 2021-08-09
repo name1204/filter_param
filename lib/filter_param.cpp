@@ -267,7 +267,7 @@ vector<FilterParam> FilterParam::read_csv(string& filename)
  *
  *   Other(path) : その他の特性のフィルタ。pathは周波数帯域の情報を記したファイルへの相対パス
  */
-FilterType FilterParam::analyze_type(string &input)
+FilterType FilterParam::analyze_type(const string& input)
 {
 	FilterType type;
 	string str = input;
@@ -313,7 +313,7 @@ FilterType FilterParam::analyze_type(string &input)
  * # 返り値
  * vector<double> edge : 解析・分離した周波数帯域端の配列
  */
-vector<double> FilterParam::analyze_edges(string &input)
+vector<double> FilterParam::analyze_edges(const string& input)
 {
 	vector<double> edge;
 	string str = input;
@@ -349,7 +349,8 @@ vector<double> FilterParam::analyze_edges(string &input)
  *                                        csw = Complex Sin Wave
  *
  */
-vector<complex<double>> FilterParam::gen_csw(BandParam &bp, unsigned int nsplit)
+vector<complex<double>> FilterParam::gen_csw
+(const BandParam& bp, const unsigned int nsplit)
 {
 	vector<complex<double>> csw;
 		csw.reserve(nsplit);
@@ -378,7 +379,8 @@ vector<complex<double>> FilterParam::gen_csw(BandParam &bp, unsigned int nsplit)
  *                                        csw2 = Complex Sin Wave 2(second)
  *
  */
-vector<complex<double>> FilterParam::gen_csw2(BandParam &bp, unsigned int nsplit)
+vector<complex<double>> FilterParam::gen_csw2
+(const BandParam& bp, const unsigned int nsplit)
 {
 	vector<complex<double>> csw2;
 		csw2.reserve(nsplit);
@@ -462,7 +464,7 @@ vector<vector<complex<double>>> FilterParam::freq_res_se(vector<double>& coef)
 	return res;
 }
 
-vector<vector<complex<double>>> FilterParam::freq_res_no(vector<double> &coef)
+vector<vector<complex<double>>> FilterParam::freq_res_no(const vector<double>& coef) const
 {
 	vector<vector<complex<double>>> freq;
 		freq.reserve(bands.size());
@@ -495,7 +497,7 @@ vector<vector<complex<double>>> FilterParam::freq_res_no(vector<double> &coef)
 	return freq;
 }
 
-vector<vector<complex<double>>> FilterParam::freq_res_mo(vector<double> &coef) // 周波数特性計算関数
+vector<vector<complex<double>>> FilterParam::freq_res_mo(const vector<double>& coef) const
 {
 	vector<vector<complex<double>>> freq;
 		freq.reserve(bands.size());
