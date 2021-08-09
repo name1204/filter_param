@@ -112,8 +112,9 @@ protected:
 
 	// 内部パラメータ
 	
-	vector<vector<complex<double>>> csw;		// 複素正弦波e^-jωを周波数帯域別に格納
-	vector<vector<complex<double>>> csw2;		// 複素正弦波e^-j2ωを周波数帯域別に格納
+	vector<vector<complex<double>>> csw;			// 複素正弦波e^-jωを周波数帯域別に格納
+	vector<vector<complex<double>>> csw2;			// 複素正弦波e^-j2ωを周波数帯域別に格納
+	vector<vector<complex<double>>> desire_res;		// 所望特性の周波数特性
 
 	function< vector<vector<complex<double>>>(const vector<double>&) > freq_res_func;
 
@@ -185,6 +186,7 @@ public:
 	static vector<double> analyze_edges(const string&);
 	static vector<complex<double>> gen_csw(const BandParam&, const unsigned int);
 	static vector<complex<double>> gen_csw2(const BandParam&, const unsigned int);
+	static vector<complex<double>> gen_desire_res(const BandParam&, const unsigned int, const double);
 };
 
 //-------template function---------------------------------------

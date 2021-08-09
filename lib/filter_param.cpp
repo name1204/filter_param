@@ -39,22 +39,22 @@ string BandParam::sprint()
 	string str;
 	switch (band_type)
 	{
-	case BandType::Pass:
-	{
-		auto fmt = string("PassBand(%6.3f, %6.3f)");
-		str = format(fmt, left_side, right_side);
-		break;
-	}
-	case BandType::Stop:
-	{
-		str = format("StopBand(%6.3f, %6.3f)", left_side, right_side);
-		break;
-	}
-	case BandType::Transition:
-	{
-		str = format("TransitionBand(%6.3f, %6.3f)", left_side, right_side);
-		break;
-	}
+		case BandType::Pass:
+		{
+			auto fmt = string("PassBand(%6.3f, %6.3f)");
+			str = format(fmt, left_side, right_side);
+			break;
+		}
+		case BandType::Stop:
+		{
+			str = format("StopBand(%6.3f, %6.3f)", left_side, right_side);
+			break;
+		}
+		case BandType::Transition:
+		{
+			str = format("TransitionBand(%6.3f, %6.3f)", left_side, right_side);
+			break;
+		}
 	}
 	return str;
 }
@@ -354,7 +354,7 @@ vector<complex<double>> FilterParam::gen_csw
 {
 	vector<complex<double>> csw;
 		csw.reserve(nsplit);
-	const double step_size = bp.width() / nsplit;
+	const double step_size = bp.width() / (double)nsplit;
 	const double left = bp.left();
 	constexpr double dpi = -2.0 * M_PI;			// double pi
 
@@ -384,7 +384,7 @@ vector<complex<double>> FilterParam::gen_csw2
 {
 	vector<complex<double>> csw2;
 		csw2.reserve(nsplit);
-	const double step_size = bp.width() / nsplit;
+	const double step_size = bp.width() / (double)nsplit;
 	const double left = bp.left();
 	constexpr double dpi = -4.0 * M_PI;			// quadrical pi
 
@@ -434,6 +434,37 @@ vector<vector<complex<double>>> FilterParam::freq_res_no(vector<double>& coef)  
   return freq ;
 }
 vector<vector<complex<double>>> FilterParam::freq_res_se(vector<double>& coef)
+vector<complex<double>> FilterParam::gen_desire_res
+(const BandParam& bp, const unsigned int nsplit, const double group_delay)
+{
+	vector<complex<double>> desire;
+
+	switch (bp.type())
+	{
+		case BandType::Pass:
+		case BandType::Stop:
+		{
+			desire.reserve(nsplit);
+			const double step_size = bp.width() / (double)nsplit;
+			const double left = bp.left();
+			constexpr double dpi = 2.0 * M_PI;			// double pi
+			const double ang = dpi*group_delay;
+
+			for (unsigned int i = 0; i < nsplit; ++i)
+			{
+				desire.emplace_back(polar(1.0, ang * (left + step_size * (double) i)));
+			}
+			break;
+		}
+		case BandType::Transition:
+			break;
+	}
+
+	return desire;
+}
+
+
+vector<vector<complex<double>>> FilterParam::freq_res_se(const vector<double>& coef) const
 {
 	vector<vector<complex<double>>> res;
 		res.reserve(bands.size());
