@@ -527,3 +527,13 @@ vector<vector<complex<double>>> FilterParam::freq_res_mo(const vector<double>& c
 	
 	return freq;
 }
+
+{
+			{
+				if(abs(coef.at(i+1)) >= 1 || coef.at(i+1) <= abs(coef.at(i)) - 1)
+				{
+					penalty += coef.at(i)*coef.at(i) + coef.at(i+1)*coef.at(i+1);
+				}
+			}
+			return penalty;
+}

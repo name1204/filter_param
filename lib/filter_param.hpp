@@ -177,6 +177,7 @@ public:
 	// static function
 	
 	static vector<FilterParam> read_csv(string&);
+	double judge_stability_even(const vector<double>&) const;	
 
 	template <typename... Args>
 	static vector<BandParam> gen_bands(FilterType, Args...);
