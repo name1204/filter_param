@@ -86,10 +86,14 @@ public:
 		right_side = input_right;
 	}
 
-	BandType type() { return band_type; }
-	double left() { return left_side; }
-	double right() { return right_side; }
-	double width() { return right_side - left_side; }
+	BandType type() const
+	{ return band_type; }
+	double left() const
+	{ return left_side; }
+	double right() const
+	{ return right_side; }
+	double width() const
+	{ return right_side - left_side; }
 	string sprint();
 };
 
@@ -111,7 +115,7 @@ protected:
 	vector<vector<complex<double>>> csw;		// 複素正弦波e^-jωを周波数帯域別に格納
 	vector<vector<complex<double>>> csw2;		// 複素正弦波e^-j2ωを周波数帯域別に格納
 
-	function< vector<vector<complex<double>>>(vector<double>&) > freq_res_func;
+	function< vector<vector<complex<double>>>(const vector<double>&) > freq_res_func;
 
 	// 内部メソッド
 
@@ -120,9 +124,9 @@ protected:
 	 nsplit_approx(0), nsplit_transition(0), group_delay(0.0),
 	 threshold_riple(1.0)
 	{}
-	vector<vector<complex<double>>> freq_res_se(vector<double>&);
-	vector<vector<complex<double>>> freq_res_no(vector<double>&);
-	vector<vector<complex<double>>> freq_res_mo(vector<double>&);
+	vector<vector<complex<double>>> freq_res_se(const vector<double>&) const;
+	vector<vector<complex<double>>> freq_res_no(const vector<double>&) const;
+	vector<vector<complex<double>>> freq_res_mo(const vector<double>&) const;
 
 public:
 	FilterParam(unsigned int, unsigned int, vector<BandParam>,
@@ -130,31 +134,26 @@ public:
 
 	// get function
 
-	unsigned int pole_order()
+	unsigned int pole_order() const
 	{ return m_order; }
-	unsigned int zero_order()
+	unsigned int zero_order() const
 	{ return n_order; }
-	unsigned int opt_order()
+	unsigned int opt_order() const
 	{ return 1 + n_order + m_order; }
-	vector<BandParam> fbands()
-	{
-		return bands;
-	}
-	unsigned int partition_approx()
-	{
-		return nsplit_approx;
-	}
-	unsigned int partition_transition()
-	{
-		return nsplit_transition;
-	}
-	double gd()
-	{
-		return group_delay;
-	}
+	vector<BandParam> fbands() const
+	{ return bands; }
+	unsigned int partition_approx() const
+	{ return nsplit_approx; }
+	unsigned int partition_transition() const
+	{ return nsplit_transition; }
+	double gd() const
+	{ return group_delay; }
 
 	// set function
-
+	/* # フィルタ構造体
+	 *   振幅隆起として検知する閾値を変更する
+	 *   デフォルト値は1.0
+	 */
 	void set_threshold_riple(double input)
 	{ threshold_riple = input; }
 
@@ -170,7 +169,7 @@ public:
 	 *   #返り値
 	 *   vector<vector<complex<double>>> response : 周波数帯域-周波数分割数の2重配列
 	 */
-	vector<vector<complex<double>>> freq_res(vector<double>& coef)
+	vector<vector<complex<double>>> freq_res(const vector<double>& coef) const
 	{ return this->freq_res_func(coef); }
 	
 
@@ -180,10 +179,10 @@ public:
 
 	template <typename... Args>
 	static vector<BandParam> gen_bands(FilterType, Args...);
-	static FilterType analyze_type(string &);
-	static vector<double> analyze_edges(string &);
-	static vector<complex<double>> gen_csw(BandParam &, unsigned int);
-	static vector<complex<double>> gen_csw2(BandParam &, unsigned int);
+	static FilterType analyze_type(const string&);
+	static vector<double> analyze_edges(const string&);
+	static vector<complex<double>> gen_csw(const BandParam&, const unsigned int);
+	static vector<complex<double>> gen_csw2(const BandParam&, const unsigned int);
 };
 
 //-------template function---------------------------------------
