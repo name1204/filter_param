@@ -76,8 +76,9 @@ public:
 		// バンドの条件に合わないとき、エラー終了
 		if (input_left < 0.0 || input_left > input_right || input_right > 0.5)
 		{
-			fprintf(stderr, "Error: [%s l.%d]Band edge is illegal(left :%6.3f, right :%6.3f)\n",
-					__FILE__, __LINE__, input_left, input_right);
+			fprintf(stderr,
+				"Error: [%s l.%d]Band edge is illegal(left :%6.3f, right :%6.3f)\n",
+				__FILE__, __LINE__, input_left, input_right);
 			exit(EXIT_FAILURE);
 		}
 
@@ -110,7 +111,7 @@ protected:
 	vector<vector<complex<double>>> csw;		// 複素正弦波e^-jωを周波数帯域別に格納
 	vector<vector<complex<double>>> csw2;		// 複素正弦波e^-j2ωを周波数帯域別に格納
 
-	function<vector<vector<complex<double>>>(vector<double>&)> freq_res_func;
+	function< vector<vector<complex<double>>>(vector<double>&) > freq_res_func;
 
 	// 内部メソッド
 
@@ -220,38 +221,40 @@ vector<BandParam> FilterParam::gen_bands(FilterType ftype, Args... edges)
 
 	switch (ftype)
 	{
-	case FilterType::LPF:
-	{
-		int nedge = sizeof...(edges);
-		if (nedge != 2)
+		case FilterType::LPF:
+		{
+			int nedge = sizeof...(edges);
+			if (nedge != 2)
+			{
+				fprintf(stderr,
+					"Error: [%s l.%d]It has not been implement yet.\n",
+					__FILE__, __LINE__);
+				exit(EXIT_FAILURE);
+			}
+
+			double edge[] = {edges...};
+			bands.emplace_back(BandParam(BandType::Pass, 0.0, edge[0]));
+			bands.emplace_back(BandParam(BandType::Transition, edge[0], edge[1]));
+			bands.emplace_back(BandParam(BandType::Stop, edge[1], 0.5));
+			break;
+		}
+		case FilterType::Other:
 		{
 			fprintf(stderr, 
+				"Error: [%s l.%d]Other type filter can't use this function. "
+				"Please, make `vector<BandParam>` your self.\n",
+				__FILE__, __LINE__);
+			exit(EXIT_FAILURE);
+			break;
+		}
+		default:
+		{
+			fprintf(stderr,
 				"Error: [%s l.%d]It has not been implement yet.\n",
 				__FILE__, __LINE__);
 			exit(EXIT_FAILURE);
+			break;
 		}
-
-		double edge[] = {edges...};
-		bands.emplace_back(BandParam(BandType::Pass, 0.0, edge[0]));
-		bands.emplace_back(BandParam(BandType::Transition, edge[0], edge[1]));
-		bands.emplace_back(BandParam(BandType::Stop, edge[1], 0.5));
-		break;
-	}
-	case FilterType::Other:
-	{
-		fprintf(stderr, "Error: [%s l.%d]Other type filter can't use this function. "
-						"Please, make `vector<BandParam>` your self.\n",
-				__FILE__, __LINE__);
-		exit(EXIT_FAILURE);
-		break;
-	}
-	default:
-	{
-		fprintf(stderr, "Error: [%s l.%d]It has not been implement yet.\n",
-				__FILE__, __LINE__);
-		exit(EXIT_FAILURE);
-		break;
-	}
 	}
 
 	return bands;

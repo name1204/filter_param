@@ -353,9 +353,9 @@ vector<complex<double>> FilterParam::gen_csw(BandParam &bp, unsigned int nsplit)
 {
 	vector<complex<double>> csw;
 		csw.reserve(nsplit);
-	double step_size = bp.width() / nsplit;
-	double left = bp.left();
-	const double dpi = -2.0 * M_PI;			// double pi
+	const double step_size = bp.width() / nsplit;
+	const double left = bp.left();
+	constexpr double dpi = -2.0 * M_PI;			// double pi
 
 	for (unsigned int i = 0; i < nsplit; ++i)
 	{
@@ -378,14 +378,13 @@ vector<complex<double>> FilterParam::gen_csw(BandParam &bp, unsigned int nsplit)
  *                                        csw2 = Complex Sin Wave 2(second)
  *
  */
-vector<complex<double>> FilterParam::gen_csw2(BandParam &bp,
-		unsigned int nsplit)
+vector<complex<double>> FilterParam::gen_csw2(BandParam &bp, unsigned int nsplit)
 {
 	vector<complex<double>> csw2;
-	csw2.reserve(nsplit);
-	double step_size = bp.width() / nsplit;
-	double left = bp.left();
-	const double dpi = -4.0 * M_PI;			// quadrical pi
+		csw2.reserve(nsplit);
+	const double step_size = bp.width() / nsplit;
+	const double left = bp.left();
+	constexpr double dpi = -4.0 * M_PI;			// quadrical pi
 
 	for (unsigned int i = 0; i < nsplit; ++i)
 	{
