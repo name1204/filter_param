@@ -520,13 +520,11 @@ vector<vector<complex<double>>> FilterParam::freq_res_mo(const vector<double>& c
 			for (unsigned int m = n_order + 2; m < opt_order(); m += 2)
 			{
 				deno *= 1.0 + coef.at(m)*csw.at(i).at(j) + coef.at(m + 1)*csw2.at(i).at(j);
-			}
-
-			freq_band.emplace_back( coef.at(0)*(nume / deno) );
+				freq_band.emplace_back( coef.at(0)*(nume / deno) );
 		}
 		freq.emplace_back(freq_band);
+
 	}
-	
 	return freq;
 }
 
@@ -542,4 +540,45 @@ double FilterParam::judge_stability_even(const vector<double>& coef) const
 		}
 	}
 	return penalty;
+	
+double FilterParam::evaluate(const vector<double> &coef) // 目的関数地計算関数
+{
+	constexpr double cs = 100;	//安定性のペナルティの重み
+	constexpr double ct = 100;	//振幅隆起のペナルティの重み
+
+	double max_error = 0.0;	//最大誤差
+	double max_riple = 0.0;	//振幅隆起のペナルティの値
+
+	auto bands = FilterParam::gen_bands(FilterType::LPF, 0.2, 0.275);
+	FilterParam Fparam(7,4,bands,200,50,5.0);
+	//const BandParam& bp;	//初期化子が必要と言われますが、どのようにすればよいのかわかりません
+
+	//double penalty_stability = penalty_stability(coef);
+	vector<vector<complex<double>>> freq=Fparam.freq_res(coef);
+
+	for (unsigned int i = 0; i < bands.size(); ++i)    // 周波数帯域のループ(L.P.F.なら３つ)
+	{
+		for (unsigned int j = 0; j < csw.at(i).size(); ++j)  // 周波数帯域内の分割数によるループ
+		{
+			/*switch (bp.type())	
+			{
+			case BandType::Pass:
+			case BandType::Stop:
+				{
+					if(max_error < abs(1.0 - freq.at(i).at(j)))
+						{
+							max_error = abs(1.0 - freq.at(i).at(j));
+						}  
+				}
+			case BandType::Transition:
+				{
+					if(max_riple > 1.0 )
+						{
+							max_riple = abs(freq.at(i).at(j));
+						}
+				}
+			}*/
+		}
+	}
+	return(max_error + ct*max_riple*max_riple /*+ cs*penalty_stability*/);
 }
