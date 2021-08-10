@@ -16,6 +16,7 @@ void test_Band_generator();
 void test_analyze_edges();
 void test_FilterParam_read_csv();
 void test_FilterParam_csw();
+void test_FilterParam_desire_res();
 void test_FilterParam_freq_res_se();
 void test_FilterParam_freq_res_no();
 void test_FilterParam_freq_res_mo();
@@ -23,6 +24,8 @@ void test_FilterParam_freq_res_mo();
 int main(void)
 {
 	printf("example run\n");
+
+	test_FilterParam_desire_res();
 
 	return 0;
 }
@@ -118,6 +121,44 @@ void test_FilterParam_csw()
 	{
 		printf("%6f %6f\n", z.real(), z.imag());
 	}
+}
+
+/* # フィルタ構造体
+ *   所望特性の周波数特性についてのテスト関数
+ *   通過域でe^jωτ(τ= group delay)，
+ *   阻止域で０，遷移域で要素なしの出力
+ */
+void test_FilterParam_desire_res()
+{
+	double gd = 5.0;
+
+	auto pass_band = BandParam(BandType::Pass, 0.0, 0.2);
+	auto desire_pass = FilterParam::gen_desire_res(pass_band, 100, gd);
+	printf("-----------pass band-----------------\n");
+	for(auto z :desire_pass)
+	{
+		printf("%6f %6f\n", z.real(), z.imag());
+	}
+	printf("----------------------------\n\n");
+
+	auto stop_band = BandParam(BandType::Stop, 0.0, 0.2);
+	auto desire_stop = FilterParam::gen_desire_res(stop_band, 100, gd);
+	printf("-----------stop band-----------------\n");
+	for(auto z :desire_stop)
+	{
+		printf("%6f %6f\n", z.real(), z.imag());
+	}
+	printf("----------------------------\n\n");
+
+	auto trans_band = BandParam(BandType::Transition, 0.0, 0.2);
+	auto desire_trans = FilterParam::gen_desire_res(trans_band, 100, gd);
+	printf("-----------transition band-----------------\n");
+	for(auto z :desire_trans)
+	{
+		printf("%6f %6f\n", z.real(), z.imag());
+	}
+	printf("----------------------------\n\n");
+
 }
 
 /* フィルタ構造体
@@ -221,3 +262,4 @@ void test_FilterParam_freq_res_mo()
 		}
 	}
 }
+

@@ -404,7 +404,6 @@ vector<complex<double>> FilterParam::gen_desire_res
 	switch (bp.type())
 	{
 		case BandType::Pass:
-		case BandType::Stop:
 		{
 			desire.reserve(nsplit);
 			const double step_size = bp.width() / (double)nsplit;
@@ -416,6 +415,11 @@ vector<complex<double>> FilterParam::gen_desire_res
 			{
 				desire.emplace_back(polar(1.0, ang * (left + step_size * (double) i)));
 			}
+			break;
+		}
+		case BandType::Stop:
+		{
+			desire.resize(nsplit, 0.0);
 			break;
 		}
 		case BandType::Transition:
