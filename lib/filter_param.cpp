@@ -129,35 +129,38 @@ FilterParam::FilterParam
 	{
 		switch (bp.type())
 		{
-		case BandType::Pass:
-		{
-			split.emplace_back(
-				(unsigned int)((double)nsplit_approx * bp.width() / approx_range));
-			break;
-		}
-		case BandType::Stop:
-		{
-			split.emplace_back(
-				(unsigned int)((double)nsplit_approx * bp.width() / approx_range));
-			break;
-		}
-		case BandType::Transition:
-		{
-			split.emplace_back(
-				(unsigned int)((double)nsplit_transition * bp.width() / transition_range));
-			break;
-		}
+			case BandType::Pass:
+			{
+				split.emplace_back(
+					(unsigned int)((double)nsplit_approx * bp.width() / approx_range));
+				break;
+			}
+			case BandType::Stop:
+			{
+				split.emplace_back(
+					(unsigned int)((double)nsplit_approx * bp.width() / approx_range));
+				break;
+			}
+			case BandType::Transition:
+			{
+				split.emplace_back(
+					(unsigned int)((double)nsplit_transition * bp.width() / transition_range));
+				break;
+			}
 		}
 	}
 	split.at(0) += 1;
 
 	// generate complex sin wave(e^-jω)
+	// desire frequency response
 	csw.reserve(bands.size());
 	csw2.reserve(bands.size());
+	desire_res.reserve(bands.size());
 	for (unsigned int i = 0; i < bands.size(); ++i)
 	{
-		csw.emplace_back(FilterParam::gen_csw(bands.at(i), split.at(i)));
-		csw2.emplace_back(FilterParam::gen_csw2(bands.at(i), split.at(i)));
+		csw.emplace_back(gen_csw(bands.at(i), split.at(i)));
+		csw2.emplace_back(gen_csw2(bands.at(i), split.at(i)));
+		desire_res.emplace_back(gen_desire_res(bands.at(i), split.at(i), group_delay));
 	}
 
 	// decide using function
@@ -428,7 +431,6 @@ vector<complex<double>> FilterParam::gen_desire_res
 
 	return desire;
 }
-
 
 vector<vector<complex<double>>> FilterParam::freq_res_se(const vector<double>& coef) const
 {
