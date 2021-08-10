@@ -5,9 +5,11 @@
  *      Author: matsu
  */
 
+#include "./lib/filter_param.hpp"
+
 #include <stdio.h>
 #include <string>
-#include "./lib/filter_param.hpp"
+#include <chrono>
 
 using namespace std;
 
@@ -17,6 +19,7 @@ void test_analyze_edges();
 void test_FilterParam_read_csv();
 void test_FilterParam_csw();
 void test_FilterParam_desire_res();
+void test_FilterParam_freq_res_speed();
 void test_FilterParam_freq_res_se();
 void test_FilterParam_freq_res_no();
 void test_FilterParam_freq_res_mo();
@@ -27,8 +30,6 @@ void test_FilterParam_evaluate_objective_function();
 int main(void)
 {
 	printf("example run\n");
-
-	test_FilterParam_evaluate_objective_function();
 
 	return 0;
 }
@@ -162,6 +163,68 @@ void test_FilterParam_desire_res()
 	}
 	printf("----------------------------\n\n");
 
+}
+
+/* # フィルタ構造体
+ *   周波数特性計算関数の実行速度を計算する
+ *
+ *   trialについての平均で判断する
+ *   また各１回の実行時間は微小のため，
+ *   repeat分繰り返して割ることで
+ *   精度よく測定することを試みる
+ */
+void test_FilterParam_freq_res_speed()
+{
+	printf("thread will ce locked about 2 minutes.\n");
+
+// 時間計測関連
+	int trial = 100;
+	int exp_ = 5;
+	int repeat = pow(10, exp_);
+	double ave = 0.0;
+	double ave_all = 0.0;
+
+// 計測雑利用
+    vector<double> coef
+    {
+        0.018656458,
+
+        1.969338828,
+        1.120102082,
+        0.388717952,
+        0.996398946,
+        1.048137529,
+        1.037079725,
+        -4.535575709,
+        6.381429398,
+
+        -0.139429968,
+        0.763426685
+    };
+    auto bands = FilterParam::gen_bands(FilterType::LPF, 0.2, 0.3);
+    FilterParam fparam(8, 2, bands, 200, 50, 5.0);
+    vector<vector<complex<double>>> freq_res;
+
+	for(int i = 0 ; i < trial ; ++i)
+	{
+		auto start1 = chrono::system_clock::now();      // 計測スタート時刻を保存
+
+		for(int j = 0 ; j < repeat ; ++j)
+		{
+		    freq_res = fparam.freq_res(coef);
+		}
+
+		auto end1 = chrono::system_clock::now();       // 計測終了時刻を保存
+		double msec1 = chrono::duration_cast<chrono::milliseconds>(end1 - start1).count();
+		double once_time1 = msec1 / (double)repeat;
+		ave += once_time1;
+		ave_all += msec1;
+	}
+
+	printf("\n------------------------------------\n\n\n\n");
+	printf("using functional : Average %15.15f[ns]\n", 1000*1000*ave / (double)trial);
+	printf("using functional : All(10^%d) %15.15f[ms]\n", exp_, ave_all / (double)trial);
+	printf("Size : %lld\n", sizeof(fparam));
 }
 
 /* フィルタ構造体
