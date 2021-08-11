@@ -187,6 +187,7 @@ public:
 	{ return this->stability_func(coef); }
 
 	double evaluate(const vector<double>&) const; // 目的関数値計算関数
+	double judge_stability_odd(const vector<double>& coef);
 	// static function
 	
 	static vector<FilterParam> read_csv(string&);
