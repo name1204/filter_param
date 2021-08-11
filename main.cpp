@@ -22,6 +22,7 @@ void test_FilterParam_freq_res_no();
 void test_FilterParam_freq_res_mo();
 void test_judge_stability_even();
 void test_evaluate_objective_function();
+void test_FilterParam_judge_stability_odd();
 
 int main(void)
 {
