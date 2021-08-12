@@ -20,15 +20,13 @@ void test_FilterParam_desire_res();
 void test_FilterParam_freq_res_se();
 void test_FilterParam_freq_res_no();
 void test_FilterParam_freq_res_mo();
-void test_judge_stability();
+void test_judge_stability_even();
 
 int main(void)
 {
 	printf("example run\n");
 
-	//test_FilterParam_freq_res_se();
-	//test_FilterParam_freq_res_no();
-	test_judge_stability();
+	test_judge_stability_even();
 
 	return 0;
 }
@@ -265,7 +263,7 @@ void test_FilterParam_freq_res_mo()
 	}
 }
 
-void test_judge_stability()
+void test_judge_stability_even()
 {
 	auto bands = FilterParam::gen_bands(FilterType::LPF, 0.2, 0.275);
 	FilterParam fparam(7, 4, bands, 200, 50, 5.0);
