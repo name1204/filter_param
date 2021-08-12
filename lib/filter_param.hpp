@@ -117,6 +117,7 @@ protected:
 	vector<vector<complex<double>>> desire_res;		// 所望特性の周波数特性
 
 	function< vector<vector<complex<double>>>(const vector<double>&) > freq_res_func;
+	function< double(const vector<double>&) > stability_func;
 
 	// 内部メソッド
 
@@ -128,6 +129,8 @@ protected:
 	vector<vector<complex<double>>> freq_res_se(const vector<double>&) const;
 	vector<vector<complex<double>>> freq_res_no(const vector<double>&) const;
 	vector<vector<complex<double>>> freq_res_mo(const vector<double>&) const;
+
+	double judge_stability_even(const vector<double>&) const;
 
 public:
 	FilterParam(unsigned int, unsigned int, vector<BandParam>,
@@ -176,10 +179,15 @@ public:
 	{ return this->freq_res_func(coef); }
 	
 
+	/*
+	 *
+	 */
+	double judge_stability(const vector<double>& coef) const
+	{ return this->stability_func(coef); }
+
 	// static function
 	
 	static vector<FilterParam> read_csv(string&);
-	double judge_stability_even(const vector<double>&) const;	
 
 	template <typename... Args>
 	static vector<BandParam> gen_bands(FilterType, Args...);

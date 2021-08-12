@@ -167,18 +167,20 @@ FilterParam::FilterParam
 	{
 		if ((m_order % 2) == 0)
 		{
-			freq_res_func = bind(&FilterParam::freq_res_se, this,placeholders::_1);
+			freq_res_func = bind(&FilterParam::freq_res_se, this, placeholders::_1);
+			stability_func = bind(&FilterParam::judge_stability_even, this, placeholders::_1);
 		}
 		else
 		{
-			freq_res_func = bind(&FilterParam::freq_res_mo, this,placeholders::_1);
+			freq_res_func = bind(&FilterParam::freq_res_mo, this, placeholders::_1);
 		}
 	}
 	else
 	{
 		if ((m_order % 2) == 0)
 		{
-			freq_res_func = bind(&FilterParam::freq_res_no, this,placeholders::_1);
+			freq_res_func = bind(&FilterParam::freq_res_no, this, placeholders::_1);
+			stability_func = bind(&FilterParam::judge_stability_even, this, placeholders::_1);
 		}
 		else
 		{
@@ -566,12 +568,16 @@ vector<vector<complex<double>>> FilterParam::freq_res_mo(const vector<double>& c
 	return freq;
 }
 
+double FilterParam::judge_stability_even(const vector<double>& coef) const
 {
-			{
-				if(abs(coef.at(i+1)) >= 1 || coef.at(i+1) <= abs(coef.at(i)) - 1)
-				{
-					penalty += coef.at(i)*coef.at(i) + coef.at(i+1)*coef.at(i+1);
-				}
-			}
-			return penalty;
+	double penalty = 0.0;
+
+	for (unsigned int i = n_order + 1; i < this->opt_order(); i += 2)
+	{
+		if(abs(coef.at(i+1)) >= 1 || coef.at(i+1) <= abs(coef.at(i)) - 1)
+		{
+			penalty += coef.at(i)*coef.at(i) + coef.at(i+1)*coef.at(i+1);
+		}
+	}
+	return penalty;
 }
