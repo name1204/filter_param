@@ -28,7 +28,7 @@ int main(void)
 {
 	printf("example run\n");
 
-	test_evaluate_objective_function;
+	test_FilterParam_judge_stability_odd();
 
 	return 0;
 }
@@ -235,7 +235,8 @@ void test_FilterParam_freq_res_no()
 
 void test_FilterParam_freq_res_mo()
 {
-	vector<double> coef	{
+	vector<double> coef	
+	{
 		-0.040404875,
 
 		0.957674103,
@@ -355,7 +356,7 @@ void test_judge_stability_even()
 void test_evaluate_objective_function()
 {
 	vector<double> coef
-		{
+	{
 		0.025247504683641238,
 
 		0.8885952985540255,
@@ -378,4 +379,116 @@ void test_evaluate_objective_function()
 	auto objective_function_value = Fparam.evaluate(coef);
 
 	printf("objective_function_value %f\n",objective_function_value);
+}
+
+void test_FilterParam_judge_stability_odd()
+{
+	auto bands = FilterParam::gen_bands(FilterType::LPF, 0.1, 0.145);
+	FilterParam fparam(8, 3, bands, 200, 50, 5.0);
+	double penalty = 0.0;
+
+	vector<double> coef_test1
+	{
+		-0.040404875,
+
+		0.957674103,
+		0.765466003,
+		-1.585891794,
+		-1.903482473,
+		-0.441904071,
+		0.79143639,
+		-1.149627531,
+		0.965348065,
+		
+		-0.434908839,
+		-1.332562129,
+		0.838349784
+	};
+
+	penalty = fparam.judge_stability(coef_test1);
+	printf("stability %f\n", penalty);
+
+	vector<double> coef_test2
+	{
+		-0.040404875,
+
+		0.957674103,
+		0.765466003,
+		-1.585891794,
+		-1.903482473,
+		-0.441904071,
+		0.79143639,
+		-1.149627531,
+		0.965348065,
+		
+		-1.434908839,
+		-1.332562129,
+		0.838349784
+	};
+
+	penalty = fparam.judge_stability(coef_test2);
+	printf("instability %f\n", penalty);
+
+	vector<double> coef_test3
+	{
+		-0.040404875,
+
+		0.957674103,
+		0.765466003,
+		-1.585891794,
+		-1.903482473,
+		-0.441904071,
+		0.79143639,
+		-1.149627531,
+		0.965348065,
+		
+		-0.434908839,
+		-1.332562129,
+		1.838349784
+	};
+
+	penalty = fparam.judge_stability(coef_test3);
+	printf("instability %f\n", penalty);
+
+	vector<double> coef_test4
+	{
+		-0.040404875,
+
+		0.957674103,
+		0.765466003,
+		-1.585891794,
+		-1.903482473,
+		-0.441904071,
+		0.79143639,
+		-1.149627531,
+		0.965348065,
+		
+		-0.434908839,
+		-1.332562129,
+		0.238349784
+	};
+
+	penalty = fparam.judge_stability(coef_test4);
+	printf("instability %f\n", penalty);
+
+	vector<double> coef_test5
+	{
+		-0.040404875,
+
+		0.957674103,
+		0.765466003,
+		-1.585891794,
+		-1.903482473,
+		-0.441904071,
+		0.79143639,
+		-1.149627531,
+		0.965348065,
+		
+		-0.434908839,
+		-2.332562129,
+		1.238349784
+	};
+
+	penalty = fparam.judge_stability(coef_test5);
+	printf("instability %f\n", penalty);
 }

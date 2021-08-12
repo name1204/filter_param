@@ -173,6 +173,7 @@ FilterParam::FilterParam
 		else
 		{
 			freq_res_func = bind(&FilterParam::freq_res_mo, this, placeholders::_1);
+			stability_func = bind(&FilterParam::judge_stability_odd, this, placeholders::_1);
 		}
 	}
 	else
@@ -185,6 +186,7 @@ FilterParam::FilterParam
 		else
 		{
 			printf("so is unimplemented.\n");
+			stability_func = bind(&FilterParam::judge_stability_odd, this, placeholders::_1);
 		}
 	}
 }
@@ -595,7 +597,7 @@ double FilterParam::judge_stability_odd(const vector<double>& coef) const
 
 	for(unsigned int m = n_order + 2; m < opt_order(); m += 2)
 	{
-		if(abs(coef.at(m + 1)) >= 1 && coef.at(m + 1) <= abs(coef.at(m)) - 1)
+		if(abs(coef.at(m + 1)) >= 1 || coef.at(m + 1) <= abs(coef.at(m)) - 1)
 		{
     	penalty += coef.at(m) * coef.at(m) + coef.at(m + 1) * coef.at(m + 1);
 		}
