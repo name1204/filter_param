@@ -267,6 +267,9 @@ void test_FilterParam_freq_res_mo()
 
 void test_judge_stability()
 {
+	auto bands = FilterParam::gen_bands(FilterType::LPF, 0.2, 0.275);
+	FilterParam fparam(7, 4, bands, 200, 50, 5.0);
+
 	vector<double> coef_1	//安定テスト
 	{
 		0.025247504683641238,
@@ -284,12 +287,8 @@ void test_judge_stability()
 		-0.22066728558327908,
 		0.7668032045079851
 	};
-	auto bands = FilterParam::gen_bands(FilterType::LPF, 0.2, 0.275);
-	FilterParam Fparam(7,4,bands,200,50,5.0);
-
-	double penalty=Fparam.judge_stability_even(coef_1);
-
-	printf("stable_4 %f\n" ,penalty);
+	double penalty = fparam.judge_stability(coef_1);
+	printf("stable_1 %f\n", penalty);
 
 	vector<double> coef_2	//b_2>1の時
 	{
@@ -308,11 +307,8 @@ void test_judge_stability()
 		-0.22066728558327908,
 		0.7668032045079851
 	};
-	
-	
-	penalty=Fparam.judge_stability_even(coef_2);
-
-	printf("unstable(b_2>1) %f\n" ,penalty);
+	penalty = fparam.judge_stability(coef_2);
+	printf("unstable(b_2>1) %f\n", penalty);
 
 	vector<double> coef_3	//b_1-1>b_2の時
 	{
@@ -331,10 +327,8 @@ void test_judge_stability()
 		-0.22066728558327908,
 		0.7668032045079851
 	};
-	
-	penalty=Fparam.judge_stability_even(coef_3);
-
-	printf("unstable(b_1-1>b_2) %f\n" ,penalty);
+	penalty = fparam.judge_stability(coef_3);
+	printf("unstable(b_1-1>b_2) %f\n", penalty);
 
 	vector<double> coef_4	//両方不安定の場合
 	{
@@ -353,76 +347,6 @@ void test_judge_stability()
 		-0.22066728558327908,
 		0.7668032045079851
 	};
-	
-	penalty=Fparam.judge_stability_even(coef_4);
-
-	printf("unstable(b_2>1,b_1-1>b_2) %f\n" ,penalty);
-
-	vector<double> coef_2	//b_2>1の時
-	{
-		0.025247504683641238,
-
-		0.8885952985540255,
-		-4.097963802039866,
-		5.496940685423355,
-		0.3983519261092186,
-		0.9723236917140877,
-		1.1168784833810899,
-		0.8492039597182939,
-
-		0.686114259307724,
-		1.22008381076439384,
-		-0.22066728558327908,
-		0.7668032045079851
-	};
-	
-	
-	penalty=Fparam.judge_stability_even(coef_2);
-
-	printf("unstable(b_2>1) %f\n" ,penalty);
-
-	vector<double> coef_3	//b_1-1>b_2の時
-	{
-		0.025247504683641238,
-
-		0.8885952985540255,
-		-4.097963802039866,
-		5.496940685423355,
-		0.3983519261092186,
-		0.9723236917140877,
-		1.1168784833810899,
-		0.8492039597182939,
-
-		1.686114259307724,
-		0.22008381076439384,
-		-0.22066728558327908,
-		0.7668032045079851
-	};
-	
-	penalty=Fparam.judge_stability_even(coef_3);
-
-	printf("unstable(b_1-1>b_2) %f\n" ,penalty);
-
-	vector<double> coef_4	//両方不安定の場合
-	{
-		0.025247504683641238,
-
-		0.8885952985540255,
-		-4.097963802039866,
-		5.496940685423355,
-		0.3983519261092186,
-		0.9723236917140877,
-		1.1168784833810899,
-		0.8492039597182939,
-
-		2.686114259307724,
-		1.22008381076439384,
-		-0.22066728558327908,
-		0.7668032045079851
-	};
-	
-	penalty=Fparam.judge_stability_even(coef_4);
-
-	printf("unstable(b_2>1,b_1-1>b_2) %f\n" ,penalty);
-
+	penalty = fparam.judge_stability(coef_4);
+	printf("unstable(b_2>1,b_1-1>b_2) %f\n", penalty);
 }
