@@ -129,7 +129,6 @@ protected:
 	vector<vector<complex<double>>> freq_res_se(const vector<double>&) const;
 	vector<vector<complex<double>>> freq_res_no(const vector<double>&) const;
 	vector<vector<complex<double>>> freq_res_mo(const vector<double>&) const;
-	vector<complex<double>> evaluate(vector<double>&); // 目的関数値計算関数
 
 
 	double judge_stability_even(const vector<double>&) const;
@@ -185,6 +184,7 @@ public:
 	double judge_stability(const vector<double>& coef) const
 	{ return this->stability_func(coef); }
 
+	double evaluate(const vector<double>&) const; // 目的関数値計算関数
 	// static function
 	
 	static vector<FilterParam> read_csv(string&);
