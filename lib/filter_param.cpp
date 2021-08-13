@@ -41,8 +41,7 @@ string BandParam::sprint()
 	{
 		case BandType::Pass:
 		{
-			auto fmt = string("PassBand(%6.3f, %6.3f)");
-			str = format(fmt, left_side, right_side);
+			str = format("PassBand(%6.3f, %6.3f)", left_side, right_side);
 			break;
 		}
 		case BandType::Stop:
