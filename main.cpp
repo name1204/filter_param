@@ -21,13 +21,13 @@ void test_FilterParam_freq_res_se();
 void test_FilterParam_freq_res_no();
 void test_FilterParam_freq_res_mo();
 void test_judge_stability_even();
-void test_evaluate();
+void test_evaluate_objective_function();
 
 int main(void)
 {
 	printf("example run\n");
 
-	test_evaluate();
+	test_evaluate_objective_function;
 
 	return 0;
 }
@@ -351,7 +351,7 @@ void test_judge_stability_even()
 	printf("unstable(b_2>1,b_1-1>b_2) %f\n", penalty);
 }
 
-void test_evaluate()
+void test_evaluate_objective_function()
 {
 	vector<double> coef
 		{
@@ -376,5 +376,5 @@ void test_evaluate()
 
 	auto objective_function_value = Fparam.evaluate(coef);
 
-			printf("objective_function_value %f\n",objective_function_value);
+	printf("objective_function_value %f\n",objective_function_value);
 }
