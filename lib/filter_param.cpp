@@ -537,7 +537,7 @@ double FilterParam::judge_stability_even(const vector<double>& coef) const
 	{
 		if(abs(coef.at(i+1)) >= 1 || coef.at(i+1) <= abs(coef.at(i)) - 1)
 		{
-			penalty +=coef.at(i)*coef.at(i) + coef.at(i+1)*coef.at(i+1);
+			penalty += coef.at(i)*coef.at(i) + coef.at(i+1)*coef.at(i+1);
 		}
 	}
 	return penalty;
@@ -551,8 +551,8 @@ double FilterParam::evaluate(const vector<double> &coef) const // 目的関数�
 	double max_error = 0.0;	//最大誤差
 	double max_riple = 0.0;	//振幅隆起のペナルティの値
 
-	double penalty_stability =judge_stability_even(coef);
-	vector<vector<complex<double>>> freq=freq_res(coef);
+	double penalty_stability = judge_stability_even(coef);
+	vector<vector<complex<double>>> freq = freq_res(coef);
 
 	for (unsigned int i = 0; i < bands.size(); ++i)    // 周波数帯域のループ(L.P.F.なら３つ)
 	{
@@ -560,26 +560,26 @@ double FilterParam::evaluate(const vector<double> &coef) const // 目的関数�
 		{
 			switch (bands.at(i).type())	
 			{
-			case BandType::Pass:
-			case BandType::Stop:
+				case BandType::Pass:
+				case BandType::Stop:
 				{
 					double error = abs(desire_res.at(i).at(j) - freq.at(i).at(j));
 					if(max_error < error)
-						{
-							max_error = error;
-						}
-						break;  
+					{
+						max_error = error;
+					}
+					break;  
 				}
-			case BandType::Transition:
+				case BandType::Transition:
 				{
 					if(max_riple > 1.0 )
-						{
-							max_riple = abs(freq.at(i).at(j));
-						}
-						break;
+					{
+						max_riple = abs(freq.at(i).at(j));
+					}
+					break;
 				}
 			}
 		}
 	}
-	return(max_error /*+ ct*max_riple*max_riple + cs*penalty_stability*/);
+	return(max_error + ct*max_riple*max_riple + cs*penalty_stability);
 }
