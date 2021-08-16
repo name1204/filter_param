@@ -167,26 +167,26 @@ FilterParam::FilterParam
 	{
 		if ((m_order % 2) == 0)
 		{
-			freq_res_func = bind(&FilterParam::freq_res_se, this, placeholders::_1);
-			stability_func = bind(&FilterParam::judge_stability_even, this, placeholders::_1);
+			freq_res_func = &FilterParam::freq_res_se;
+			stability_func = &FilterParam::judge_stability_even;
 		}
 		else
 		{
-			freq_res_func = bind(&FilterParam::freq_res_mo, this, placeholders::_1);
-			stability_func = bind(&FilterParam::judge_stability_odd, this, placeholders::_1);
+			freq_res_func = &FilterParam::freq_res_mo;
+			stability_func = &FilterParam::judge_stability_odd;
 		}
 	}
 	else
 	{
 		if ((m_order % 2) == 0)
 		{
-			freq_res_func = bind(&FilterParam::freq_res_no, this, placeholders::_1);
-			stability_func = bind(&FilterParam::judge_stability_even, this, placeholders::_1);
+			freq_res_func = &FilterParam::freq_res_no;
+			stability_func = &FilterParam::judge_stability_even;
 		}
 		else
 		{
 			printf("so is unimplemented.\n");
-			stability_func = bind(&FilterParam::judge_stability_odd, this, placeholders::_1);
+			stability_func = &FilterParam::judge_stability_odd;
 		}
 	}
 }
