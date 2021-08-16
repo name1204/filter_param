@@ -651,8 +651,7 @@ double FilterParam::evaluate(const vector<double> &coef) const
 
 vector<double> FilterParam::init_coef(const double a0, const double a, const double b) const
 {
-	thread_local random_device rnd;
-	thread_local mt19937 mt(rnd());
+	thread_local mt19937 mt((unsigned) time(NULL));
 	thread_local uniform_real_distribution<> a0_range(-abs(a0), abs(a0));
 	thread_local uniform_real_distribution<> a_range(-abs(a), abs(a));
 	thread_local uniform_real_distribution<> b_range(-abs(b), abs(b));
@@ -673,8 +672,10 @@ vector<double> FilterParam::init_coef(const double a0, const double a, const dou
 	return coef;
 }
 
-vector<double> init_stable_coef(const double a0, const double a) const
+vector<double> FilterParam::init_stable_coef(const double a0, const double a) const
 {
+	vector<double> coef;
 
+	return coef;
 }
 

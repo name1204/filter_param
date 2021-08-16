@@ -26,10 +26,13 @@ void test_FilterParam_freq_res_mo();
 void test_FilterParam_judge_stability_even();
 void test_FilterParam_judge_stability_odd();
 void test_FilterParam_evaluate_objective_function();
+void test_FilterParam_init_coef();
 
 int main(void)
 {
 	printf("example run\n");
+
+	test_FilterParam_init_coef();
 
 	return 0;
 }
@@ -555,3 +558,24 @@ void test_FilterParam_evaluate_objective_function()
 
 	printf("objective_function_value %f\n",objective_function_value);
 }
+
+void test_FilterParam_init_coef()
+{
+	auto bands = FilterParam::gen_bands(FilterType::LPF, 0.2, 0.3);
+	FilterParam fparam(8, 2, bands, 200, 50, 5.0);
+	double a0 = 0.5;
+	double a = 3.0;
+	double b = 3.0;
+
+	for (unsigned int i = 0; i < 5; ++i)
+	{
+		auto coef = fparam.init_coef(a0, a, b);
+
+		for (auto c :coef)
+		{
+			printf("%.3f ", c);
+		}
+		printf("\n");
+	}
+}
+
