@@ -20,15 +20,15 @@ void test_FilterParam_desire_res();
 void test_FilterParam_freq_res_se();
 void test_FilterParam_freq_res_no();
 void test_FilterParam_freq_res_mo();
-void test_judge_stability_even();
-void test_evaluate_objective_function();
+void test_FilterParam_judge_stability_even();
 void test_FilterParam_judge_stability_odd();
+void test_FilterParam_evaluate_objective_function();
 
 int main(void)
 {
 	printf("example run\n");
 
-	test_FilterParam_judge_stability_odd();
+	test_FilterParam_evaluate_objective_function();
 
 	return 0;
 }
@@ -266,7 +266,7 @@ void test_FilterParam_freq_res_mo()
 	}
 }
 
-void test_judge_stability_even()
+void test_FilterParam_judge_stability_even()
 {
 	auto bands = FilterParam::gen_bands(FilterType::LPF, 0.2, 0.275);
 	FilterParam fparam(7, 4, bands, 200, 50, 5.0);
@@ -351,34 +351,6 @@ void test_judge_stability_even()
 	
 	penalty = fparam.judge_stability(coef_4);
 	printf("unstable(b_2>1,b_1-1>b_2) %f\n", penalty);
-}
-
-void test_evaluate_objective_function()
-{
-	vector<double> coef
-	{
-		0.025247504683641238,
-
-		0.8885952985540255,
-		-4.097963802039866,
-		5.496940685423355,
-		0.3983519261092186,
-		0.9723236917140877,
-		1.1168784833810899,
-		0.8492039597182939,
-
-		-0.686114259307724,
-		0.22008381076439384,
-		-0.22066728558327908,
-		0.7668032045079851
-	};
-
-	auto bands = FilterParam::gen_bands(FilterType::LPF, 0.2, 0.275);
-	FilterParam Fparam(7,4,bands,200,50,5.0);
-
-	auto objective_function_value = Fparam.evaluate(coef);
-
-	printf("objective_function_value %f\n",objective_function_value);
 }
 
 void test_FilterParam_judge_stability_odd()
@@ -491,4 +463,32 @@ void test_FilterParam_judge_stability_odd()
 
 	penalty = fparam.judge_stability(coef_test5);
 	printf("instability %f\n", penalty);
+}
+
+void test_FilterParam_evaluate_objective_function()
+{
+	vector<double> coef
+	{
+		0.025247504683641238,
+
+		0.8885952985540255,
+		-4.097963802039866,
+		5.496940685423355,
+		0.3983519261092186,
+		0.9723236917140877,
+		1.1168784833810899,
+		0.8492039597182939,
+
+		-0.686114259307724,
+		0.22008381076439384,
+		-0.22066728558327908,
+		0.7668032045079851
+	};
+
+	auto bands = FilterParam::gen_bands(FilterType::LPF, 0.2, 0.275);
+	FilterParam Fparam(7,4,bands,200,50,5.0);
+
+	auto objective_function_value = Fparam.evaluate(coef);
+
+	printf("objective_function_value %f\n",objective_function_value);
 }
