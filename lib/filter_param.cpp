@@ -573,11 +573,11 @@ double FilterParam::judge_stability_even(const vector<double>& coef) const
 {
 	double penalty = 0.0;
 
-	for (unsigned int i = n_order + 1; i < this->opt_order(); i += 2)
+	for (unsigned int n = n_order + 1; n < this->opt_order(); n += 2)
 	{
-		if(abs(coef.at(i+1)) >= 1 || coef.at(i+1) <= abs(coef.at(i)) - 1)
+		if(abs(coef.at(n+1)) >= 1 || coef.at(n+1) <= abs(coef.at(n)) - 1)
 		{
-			penalty += coef.at(i)*coef.at(i) + coef.at(i+1)*coef.at(i+1);
+			penalty += coef.at(n)*coef.at(n) + coef.at(n+1)*coef.at(n+1);
 		}
 	}
 	return penalty;
@@ -589,14 +589,13 @@ double FilterParam::judge_stability_odd(const vector<double>& coef) const
 	
 	if(abs(coef.at(n_order + 1)) >= 1)
 	{
-    	penalty += coef.at(n_order + 1) * coef.at(n_order + 1);
+    	penalty += coef.at(n_order + 1)*coef.at(n_order + 1);
 	}
-
 	for(unsigned int m = n_order + 2; m < opt_order(); m += 2)
 	{
 		if(abs(coef.at(m + 1)) >= 1 || coef.at(m + 1) <= abs(coef.at(m)) - 1)
 		{
-    	penalty += coef.at(m) * coef.at(m) + coef.at(m + 1) * coef.at(m + 1);
+			penalty += coef.at(m)*coef.at(m) + coef.at(m + 1)*coef.at(m + 1);
 		}
 	}
 
@@ -651,10 +650,10 @@ double FilterParam::evaluate(const vector<double> &coef) const
 
 vector<double> FilterParam::init_coef(const double a0, const double a, const double b) const
 {
-	thread_local mt19937 mt((unsigned) time(NULL));
-	thread_local uniform_real_distribution<> a0_range(-abs(a0), abs(a0));
-	thread_local uniform_real_distribution<> a_range(-abs(a), abs(a));
-	thread_local uniform_real_distribution<> b_range(-abs(b), abs(b));
+	thread_local mt19937 mt((unsigned)(time(NULL)*rand()));
+	uniform_real_distribution<> a0_range(-abs(a0), abs(a0));
+	uniform_real_distribution<> a_range(-abs(a), abs(a));
+	uniform_real_distribution<> b_range(-abs(b), abs(b));
 
 	vector<double> coef;
 		coef.reserve(this->opt_order());
@@ -674,7 +673,33 @@ vector<double> FilterParam::init_coef(const double a0, const double a, const dou
 
 vector<double> FilterParam::init_stable_coef(const double a0, const double a) const
 {
+	thread_local mt19937 mt((unsigned)(time(NULL)*rand()));
+	uniform_real_distribution<> a0_range(-abs(a0), abs(a0));
+	uniform_real_distribution<> a_range(-abs(a), abs(a));
+	uniform_real_distribution<> uniform(-1.0 + numeric_limits<double>::epsilon(), 1.0);
+
 	vector<double> coef;
+		coef.reserve(this->opt_order());
+
+	coef.emplace_back(a0_range(mt));
+	for (unsigned int n = 0; n < n_order; ++n)
+	{
+		coef.emplace_back(a_range(mt));
+	}
+	if((m_order % 2) == 1)
+	{
+		coef.emplace_back(uniform(mt));
+	}
+	for (unsigned int m = m_order % 2; m < m_order; m += 2)
+	{
+		double b2 = uniform(mt);
+		uniform_real_distribution<>
+			b1_range(-(b2 + 1.0) + numeric_limits<double>::epsilon(), b2 + 1.0);
+		double b1 = b1_range(mt);
+
+		coef.emplace_back(b1);
+		coef.emplace_back(b2);
+	}
 
 	return coef;
 }

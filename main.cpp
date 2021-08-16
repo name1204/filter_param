@@ -27,12 +27,14 @@ void test_FilterParam_judge_stability_even();
 void test_FilterParam_judge_stability_odd();
 void test_FilterParam_evaluate_objective_function();
 void test_FilterParam_init_coef();
+void test_FilterParam_init_stable_coef();
 
 int main(void)
 {
 	printf("example run\n");
 
-	test_FilterParam_init_coef();
+//	test_FilterParam_init_coef();
+	test_FilterParam_init_stable_coef();
 
 	return 0;
 }
@@ -562,20 +564,39 @@ void test_FilterParam_evaluate_objective_function()
 void test_FilterParam_init_coef()
 {
 	auto bands = FilterParam::gen_bands(FilterType::LPF, 0.2, 0.3);
-	FilterParam fparam(8, 2, bands, 200, 50, 5.0);
+	FilterParam fparam(8, 9, bands, 200, 50, 5.0);
 	double a0 = 0.5;
 	double a = 3.0;
 	double b = 3.0;
 
-	for (unsigned int i = 0; i < 5; ++i)
+	for (unsigned int i = 0; i < 20; ++i)
 	{
 		auto coef = fparam.init_coef(a0, a, b);
 
 		for (auto c :coef)
 		{
-			printf("%.3f ", c);
+			printf("% 3.3f ", c);
 		}
 		printf("\n");
 	}
 }
 
+void test_FilterParam_init_stable_coef()
+{
+	auto bands = FilterParam::gen_bands(FilterType::LPF, 0.2, 0.3);
+	FilterParam fparam(2, 9, bands, 200, 50, 5.0);
+	double a0 = 0.5;
+	double a = 3.0;
+
+	for (unsigned int i = 0; i < 20; ++i)
+	{
+		auto coef = fparam.init_stable_coef(a0, a);
+
+		printf("[ %3.3f]", fparam.judge_stability(coef));
+		for (auto c :coef)
+		{
+			printf("% 3.3f ", c);
+		}
+		printf("\n");
+	}
+}
