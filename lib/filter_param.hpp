@@ -25,6 +25,7 @@
 #include <regex>
 #include <complex>
 #include <functional>
+#include <random>
 
 using namespace std;
 
@@ -178,14 +179,15 @@ public:
 	vector<vector<complex<double>>> freq_res(const vector<double>& coef) const
 	{ return this->freq_res_func(this, coef); }
 	
-
 	/*
 	 *
 	 */
 	double judge_stability(const vector<double>& coef) const
 	{ return this->stability_func(this, coef); }
 
-	double evaluate(const vector<double>&) const; // 目的関数値計算関数
+	double evaluate(const vector<double>&) const;
+	vector<double> init_coef(const double, const double, const double) const;
+	vector<double> init_stable_coef(const double, const double) const;
 
 	// static function
 	
