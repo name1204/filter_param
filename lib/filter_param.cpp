@@ -582,6 +582,26 @@ double FilterParam::judge_stability_even(const vector<double>& coef) const
 	}
 	return penalty;
 }
+
+double FilterParam::judge_stability_odd(const vector<double>& coef) const
+{
+	double penalty = 0.0;
+	
+	if(abs(coef.at(n_order + 1)) >= 1)
+	{
+    	penalty += coef.at(n_order + 1) * coef.at(n_order + 1);
+	}
+
+	for(unsigned int m = n_order + 2; m < opt_order(); m += 2)
+	{
+		if(abs(coef.at(m + 1)) >= 1 || coef.at(m + 1) <= abs(coef.at(m)) - 1)
+		{
+    	penalty += coef.at(m) * coef.at(m) + coef.at(m + 1) * coef.at(m + 1);
+		}
+	}
+
+	return penalty;
+}
 	
 double FilterParam::evaluate(const vector<double> &coef) const // 目的関数地計算関数
 {
@@ -591,7 +611,7 @@ double FilterParam::evaluate(const vector<double> &coef) const // 目的関数�
 	double max_error = 0.0;	//最大誤差
 	double max_riple = 0.0;	//振幅隆起のペナルティの値
 
-	double penalty_stability = judge_stability_even(coef);
+	double penalty_stability = judge_stability(coef);
 	vector<vector<complex<double>>> freq = freq_res(coef);
 
 	for (unsigned int i = 0; i < bands.size(); ++i)    // 周波数帯域のループ(L.P.F.なら３つ)
@@ -622,24 +642,4 @@ double FilterParam::evaluate(const vector<double> &coef) const // 目的関数�
 		}
 	}
 	return(max_error + ct*max_riple*max_riple + cs*penalty_stability);
-}
-
-double FilterParam::judge_stability_odd(const vector<double>& coef) const
-{
-	double penalty = 0.0;
-	
-	if(abs(coef.at(n_order + 1)) >= 1)
-	{
-    	penalty += coef.at(n_order + 1) * coef.at(n_order + 1);
-	}
-
-	for(unsigned int m = n_order + 2; m < opt_order(); m += 2)
-	{
-		if(abs(coef.at(m + 1)) >= 1 || coef.at(m + 1) <= abs(coef.at(m)) - 1)
-		{
-    	penalty += coef.at(m) * coef.at(m) + coef.at(m + 1) * coef.at(m + 1);
-		}
-	}
-
-	return penalty;
 }
