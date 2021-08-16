@@ -602,8 +602,12 @@ double FilterParam::judge_stability_odd(const vector<double>& coef) const
 
 	return penalty;
 }
-	
-double FilterParam::evaluate(const vector<double> &coef) const // 目的関数地計算関数
+
+/* # フィルタ構造体
+ *   ペナルティ関数法による目的関数値を計算する
+ *
+ */
+double FilterParam::evaluate(const vector<double> &coef) const
 {
 	constexpr double cs = 100;	//安定性のペナルティの重み
 	constexpr double ct = 100;	//振幅隆起のペナルティの重み
@@ -614,7 +618,7 @@ double FilterParam::evaluate(const vector<double> &coef) const // 目的関数�
 	double penalty_stability = judge_stability(coef);
 	vector<vector<complex<double>>> freq = freq_res(coef);
 
-	for (unsigned int i = 0; i < bands.size(); ++i)    // 周波数帯域のループ(L.P.F.なら３つ)
+	for (unsigned int i = 0; i < bands.size(); ++i)    // 周波数帯域のループ
 	{
 		for (unsigned int j = 0; j < csw.at(i).size(); ++j)  // 周波数帯域内の分割数によるループ
 		{
@@ -628,13 +632,14 @@ double FilterParam::evaluate(const vector<double> &coef) const // 目的関数�
 					{
 						max_error = error;
 					}
-					break;  
+					break;
 				}
 				case BandType::Transition:
 				{
-					if(max_riple > 1.0 )
+					double current_riple = abs(freq.at(i).at(j));
+					if(current_riple > threshold_riple && current_riple > max_riple)
 					{
-						max_riple = abs(freq.at(i).at(j));
+						max_riple = current_riple;
 					}
 					break;
 				}
@@ -643,3 +648,33 @@ double FilterParam::evaluate(const vector<double> &coef) const // 目的関数�
 	}
 	return(max_error + ct*max_riple*max_riple + cs*penalty_stability);
 }
+
+vector<double> FilterParam::init_coef(const double a0, const double a, const double b) const
+{
+	thread_local random_device rnd;
+	thread_local mt19937 mt(rnd());
+	thread_local uniform_real_distribution<> a0_range(-abs(a0), abs(a0));
+	thread_local uniform_real_distribution<> a_range(-abs(a), abs(a));
+	thread_local uniform_real_distribution<> b_range(-abs(b), abs(b));
+
+	vector<double> coef;
+		coef.reserve(this->opt_order());
+
+	coef.emplace_back(a0_range(mt));
+	for (unsigned int n = 0; n < n_order; ++n)
+	{
+		coef.emplace_back(a_range(mt));
+	}
+	for (unsigned int m = 0; m < m_order; ++m)
+	{
+		coef.emplace_back(b_range(mt));
+	}
+
+	return coef;
+}
+
+vector<double> init_stable_coef(const double a0, const double a) const
+{
+
+}
+
