@@ -144,6 +144,8 @@ protected:
 	double judge_stability_odd(const vector<double>&) const;
 
 public:
+	FilterParam(unsigned int, unsigned int, BandParam,
+				unsigned int, unsigned int, double);
 	FilterParam(unsigned int, unsigned int, vector<BandParam>,
 				unsigned int, unsigned int, double);
 
@@ -218,6 +220,9 @@ public:
 	double evaluate(const vector<double>&) const;
 	vector<double> init_coef(const double, const double, const double) const;
 	vector<double> init_stable_coef(const double, const double) const;
+	
+	void gprint_amp(const vector<double>&, const string&, const double, const double) const;
+	void gprint_mag(const vector<double>&, const string&, const double, const double) const;
 
 	// static function
 	

@@ -58,6 +58,129 @@ string BandParam::sprint()
 	return str;
 }
 
+/* # フィルタ構造体
+ *   FilterParamという構造体でメンバ変数を()内で初期化、これらの情報を基に
+ *   ・帯域の種類ごとに分割数を算出
+ *   ・基本波・第２次高調波の複素正弦波と所望周波数応答の帯域ごとの格納
+ *   ・分母分子次数の偶奇の組み合わせによる使用する関数の分岐
+ *   を行う
+ *
+ * # 引数
+ * unsigned int zero : 零点の数
+ * unsigned int pole : 極の数
+ * BandParam input_band : バンドの特性情報(帯域の種類、帯域の左端正規化周波数、帯域の右端正規化周波数)
+ * unsigned int input_nsplit_approx : 近似域の分割数
+ * unsigned int input_nsplit_transition : 遷移域の分割数
+ * double gd : 所望群遅延
+ */
+FilterParam::FilterParam
+(unsigned int zero, unsigned int pole, BandParam input_band,
+	unsigned int input_nsplit_approx, unsigned int input_nsplit_transition,
+	double gd)
+:n_order(zero), m_order(pole), bands(vector<BandParam> {input_band}),
+ nsplit_approx(input_nsplit_approx), nsplit_transition(input_nsplit_transition),
+ group_delay(gd),
+ threshold_riple(1.0)
+{
+	// 帯域ごとの分割数算出
+	double approx_range = 0.0;
+	double transition_range = 0.0;
+
+	for (auto bp : bands)
+	{
+		switch (bp.type())
+		{
+		case BandType::Pass:
+		{
+			approx_range += bp.width();
+			break;
+		}
+		case BandType::Stop:
+		{
+			approx_range += bp.width();
+			break;
+		}
+		case BandType::Transition:
+		{
+			transition_range += bp.width();
+			break;
+		}
+		}
+	}
+
+	vector<unsigned int> split;
+	split.reserve(bands.size());
+	for (auto bp : bands)
+	{
+		switch (bp.type())
+		{
+			case BandType::Pass:
+			{
+				split.emplace_back(
+					(unsigned int)((double)nsplit_approx * bp.width() / approx_range));
+				break;
+			}
+			case BandType::Stop:
+			{
+				split.emplace_back(
+					(unsigned int)((double)nsplit_approx * bp.width() / approx_range));
+				break;
+			}
+			case BandType::Transition:
+			{
+				split.emplace_back(
+					(unsigned int)((double)nsplit_transition * bp.width() / transition_range));
+				break;
+			}
+		}
+	}
+	split.at(0) += 1;
+
+	// generate complex sin wave(e^-jω)
+	// desire frequency response
+	csw.reserve(bands.size());
+	csw2.reserve(bands.size());
+	desire_res.reserve(bands.size());
+	for (unsigned int i = 0; i < bands.size(); ++i)
+	{
+		csw.emplace_back(gen_csw(bands.at(i), split.at(i)));
+		csw2.emplace_back(gen_csw2(bands.at(i), split.at(i)));
+		desire_res.emplace_back(gen_desire_res(bands.at(i), split.at(i), group_delay));
+	}
+
+	// decide using function
+	if ((n_order % 2) == 0)
+	{
+		if ((m_order % 2) == 0)
+		{
+			freq_res_func = &FilterParam::freq_res_se;
+			group_delay_func = &FilterParam::group_delay_se;
+			stability_func = &FilterParam::judge_stability_even;
+		}
+		else
+		{
+			freq_res_func = &FilterParam::freq_res_mo;
+			group_delay_func = &FilterParam::group_delay_mo;
+			stability_func = &FilterParam::judge_stability_odd;
+		}
+	}
+	else
+	{
+		if ((m_order % 2) == 0)
+		{
+			freq_res_func = &FilterParam::freq_res_no;
+			group_delay_func = &FilterParam::group_delay_no;
+			stability_func = &FilterParam::judge_stability_even;
+		}
+		else
+		{
+			freq_res_func = &FilterParam::freq_res_so;
+			group_delay_func = &FilterParam::group_delay_so;
+			stability_func = &FilterParam::judge_stability_odd;
+		}
+	}
+}
+
 FilterParam::FilterParam
 (unsigned int zero, unsigned int pole, vector<BandParam> input_bands,
 	unsigned int input_nsplit_approx, unsigned int input_nsplit_transition,
@@ -926,3 +1049,89 @@ vector<double> FilterParam::init_stable_coef(const double a0, const double a) co
 	return coef;
 }
 
+/* # フィルタ構造体
+ *   振幅特性図の描画
+ * 	 leftとrightで描画範囲の指定[0:0.5]  
+ *
+ * # 引数
+ * vector<double> &coef : 係数列
+ * string &filename : 出力するファイル名(.png)
+ * double left : 帯域の左端正規化周波数 [0:0.5)
+ * double right : 帯域の右端正規化周波数 (0:0.5]
+ * 
+ */
+void FilterParam::gprint_amp
+(const vector<double> &coef, const string &filename, const double left, const double right) const
+{
+	BandParam range(BandType::Pass, left, right);
+	FilterParam fparam(n_order, m_order, range, 250, 0, 5.0);
+	auto freq_res = fparam.freq_res(coef);
+
+	constexpr double dpi = 2.0*M_PI/250.0; //固定値の事前計算
+	const double x_step = (right-left) * dpi;
+
+	//gnuplotで出力
+    FILE *gp = popen("gnuplot -persist", "w");
+    fprintf(gp, "set terminal pngcairo\n");
+	fprintf(gp, "set output '%s'\n", filename.c_str());
+    fprintf(gp, "set xlabel 'Normalized angular frequency'\n"); //正規化角周波数
+    fprintf(gp, "set ylabel 'Amplitude'\n");
+	fprintf(gp, "set key    font 'Times New Roman,10'\n");
+	fprintf(gp, "set xlabel font 'Times New Roman,12'\n");
+	fprintf(gp, "set ylabel font 'Times New Roman,12'\n");
+	fprintf(gp, "set tics   font 'Times New Roman,10'\n");
+	fprintf(gp, "set xrange [%f:%f]\n", left*2.0*M_PI, right*2.0*M_PI);
+	fprintf(gp, "set xtics 0, 0.1*pi, pi\n");
+	fprintf(gp, "set format x '%.1Pπ'\n");
+    fprintf(gp, "plot '-' with lines title \"\n");
+
+   	for(auto band_res :freq_res)
+	{
+		for(unsigned int i = 0; i < band_res.size(); i++)
+		{
+			fprintf(gp,"%f %f\n", left*2.0*M_PI + i*x_step, abs(band_res.at(i)));
+		}
+	}
+
+   	fprintf(gp, "e\n");
+
+    pclose(gp);
+}
+
+void FilterParam::gprint_mag
+(const vector<double> &coef, const string &filename, const double left, const double right) const
+{
+	BandParam range(BandType::Pass, left, right);
+	FilterParam fparam(n_order, m_order, range, 250, 0, 5.0);
+	auto freq_res = fparam.freq_res(coef);
+
+	constexpr double dpi = 2.0*M_PI/250.0;  //固定値の事前計算
+	const double x_step = (right-left) * dpi;
+
+	//gnuplotで出力
+    FILE *gp = popen("gnuplot -persist", "w");
+    fprintf(gp, "set terminal pngcairo\n");
+	fprintf(gp, "set output '%s'\n", filename.c_str());
+    fprintf(gp, "set xlabel 'Normalized angular frequency'\n"); //正規化角周波数
+    fprintf(gp, "set ylabel 'Magnitude [dB]'\n");
+	fprintf(gp, "set key    font 'Times New Roman,10'\n");
+	fprintf(gp, "set xlabel font 'Times New Roman,12'\n");
+	fprintf(gp, "set ylabel font 'Times New Roman,12'\n");
+	fprintf(gp, "set tics   font 'Times New Roman,10'\n");
+	fprintf(gp, "set xrange [%f:%f]\n", left*2.0*M_PI, right*2.0*M_PI);
+	fprintf(gp, "set xtics 0, 0.1*pi, pi\n");
+	fprintf(gp, "set format x '%.1Pπ'\n");
+    fprintf(gp, "plot '-' with lines title \"\n");
+
+   	for(auto band_res :freq_res)
+	{
+		for(unsigned int i = 0; i < band_res.size(); i++)
+		{
+			fprintf(gp,"%f %f\n", left*2.0*M_PI + i*x_step, 20*log10(abs(band_res.at(i))));
+		}
+	}
+
+   	fprintf(gp, "e\n");
+
+    pclose(gp);
+}
