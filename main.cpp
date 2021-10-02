@@ -33,17 +33,15 @@ void test_FilterParam_judge_stability_odd();
 void test_FilterParam_evaluate_objective_function();
 void test_FilterParam_init_coef();
 void test_FilterParam_init_stable_coef();
+void test_FilterParam_gprint_amp();
+void test_FilterParam_gprint_mag();
 
 int main(void)
 {
 	printf("example run\n");
 
-	test_FilterParam_read_csv();
-	//テストの実行結果を追記しておきます。値の確認方法が分からないので教えていただきたいです。
-	//test_Filter_param_group_delay_se();
-	//test_Filter_param_group_delay_so();	
-	//test_Filter_param_group_delay_no();
-	//test_Filter_param_group_delay_mo();
+	test_FilterParam_gprint_amp();
+	//test_FilterParam_gprint_mag();
 
 	return 0;
 }
@@ -772,4 +770,89 @@ void test_FilterParam_init_stable_coef()
 		}
 		printf("\n");
 	}
+}
+
+/* フィルタ構造体
+ * 振幅特性図の描画
+ * leftとrightで描画範囲の指定[0:0.5]
+ *
+ */
+void test_FilterParam_gprint_amp()
+{
+	auto bands = FilterParam::gen_bands(FilterType::LPF, 0.2, 0.275);
+	FilterParam Fparam(7,4,bands,200,50,5.0);
+
+	vector<double> coef_test
+	{
+		0.025247504683641238,
+
+		0.8885952985540255,
+		-4.097963802039866,
+		5.496940685423355,
+		0.3983519261092186,
+		0.9723236917140877,
+		1.1168784833810899,
+		0.8492039597182939,
+
+		-0.686114259307724,
+		0.22008381076439384,
+		-0.22066728558327908,
+		0.7668032045079851
+	};
+
+	// BandParamが共に[0.0 : 0.5]の範囲内＆``left < right``のため成功
+	Fparam.gprint_amp(coef_test, string("Amp1.png"), 0.0, 0.3);
+
+	Fparam.gprint_amp(coef_test, string("Amp2.png"), 0.0, 0.5);
+
+	Fparam.gprint_amp(coef_test, string("Amp3.png"), 0.2, 0.5);
+
+	Fparam.gprint_amp(coef_test, string("Amp4.png"), 0.2, 0.3);
+
+	// 以下失敗例
+	// Fparam.gprint_amp(coef_test, string("Amp5.png"), -0.2, 0.3); //BandParamよりleft<0.0のため失敗
+
+	// Fparam.gprint_amp(coef_test, string("Amp6.png"), 0.3, 0.2); //BandParamよりleft>rightのため失敗
+
+	// Fparam.gprint_amp(coef_test, string("Amp7.png"), 0.2, 0.6); //BandParamよりright>0.5のため失敗
+}
+
+void test_FilterParam_gprint_mag()
+{
+	auto bands = FilterParam::gen_bands(FilterType::LPF, 0.2, 0.275);
+	FilterParam Fparam(7,4,bands,200,50,5.0);
+
+	vector<double> coef_test
+	{
+		0.025247504683641238,
+
+		0.8885952985540255,
+		-4.097963802039866,
+		5.496940685423355,
+		0.3983519261092186,
+		0.9723236917140877,
+		1.1168784833810899,
+		0.8492039597182939,
+
+		-0.686114259307724,
+		0.22008381076439384,
+		-0.22066728558327908,
+		0.7668032045079851
+	};
+
+	// BandParamが共に[0.0 : 0.5]の範囲内＆``left < right``のため成功
+	Fparam.gprint_mag(coef_test, string("Mag1.png"), 0.0, 0.3);
+
+	Fparam.gprint_mag(coef_test, string("Mag2.png"), 0.0, 0.5);
+
+	Fparam.gprint_mag(coef_test, string("Mag3.png"), 0.2, 0.5);
+
+	Fparam.gprint_mag(coef_test, string("Mag4.png"), 0.2, 0.3);
+
+	// 以下失敗例
+	// Fparam.gprint_mag(coef_test, string("Mag5.png"), -0.2, 0.3); //BandParamよりleft<0.0のため失敗
+
+	// Fparam.gprint_mag(coef_test, string("Mag6.png"), 0.3, 0.2); //BandParamよりleft>rightのため失敗
+
+	// Fparam.gprint_mag(coef_test, string("Mag7.png"), 0.2, 0.6); //BandParamよりright>0.5のため失敗
 }
