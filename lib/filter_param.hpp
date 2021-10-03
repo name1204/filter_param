@@ -129,6 +129,7 @@ protected:
 	 threshold_riple(1.0)
 	{}
 	vector<vector<complex<double>>> freq_res_se(const vector<double>&) const;
+	vector<vector<complex<double>>> freq_res_so(const vector<double> &) const;
 	vector<vector<complex<double>>> freq_res_no(const vector<double>&) const;
 	vector<vector<complex<double>>> freq_res_mo(const vector<double>&) const;
 

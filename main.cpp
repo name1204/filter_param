@@ -21,6 +21,7 @@ void test_FilterParam_csw();
 void test_FilterParam_desire_res();
 void test_FilterParam_freq_res_speed();
 void test_FilterParam_freq_res_se();
+void test_FilterParam_freq_res_so();
 void test_FilterParam_freq_res_no();
 void test_FilterParam_freq_res_mo();
 void test_FilterParam_judge_stability_even();
@@ -33,8 +34,7 @@ int main(void)
 {
 	printf("example run\n");
 
-//	test_FilterParam_init_coef();
-	test_FilterParam_init_stable_coef();
+	test_FilterParam_freq_res_so();
 
 	return 0;
 }
@@ -266,6 +266,39 @@ void test_FilterParam_freq_res_se()
             printf("%f\n", abs(res));
         }
     }
+}
+
+void test_FilterParam_freq_res_so()
+{
+	vector<double> coef
+	{
+		-0.040659737,
+		-2.372311969,
+
+		-2.144646171,
+		4.343497453,
+		1.359348897,
+		0.984834163,
+
+		-0.710147059,
+		-0.696696684,
+		0.514853197,
+		0.503697311,
+		0.70680348
+	};
+
+	auto bands = FilterParam::gen_bands(FilterType::LPF, 0.3, 0.345);
+	FilterParam fparam(5, 5, bands, 200, 50, 5.0);
+
+	auto freq_res = fparam.freq_res(coef);
+
+	for (auto band_res : freq_res)
+	{
+		for (auto res : band_res)
+		{
+			printf("%f\n", abs(res));
+		}
+	}
 }
 
 void test_FilterParam_freq_res_no()
