@@ -185,7 +185,7 @@ FilterParam::FilterParam
 		}
 		else
 		{
-			printf("so is unimplemented.\n");
+			freq_res_func = &FilterParam::freq_res_so;
 			stability_func = &FilterParam::judge_stability_odd;
 		}
 	}
@@ -463,6 +463,40 @@ vector<vector<complex<double>>> FilterParam::freq_res_se(const vector<double>& c
 		res.emplace_back(band_res);
 	}
 
+	return res;
+}
+
+vector<vector<complex<double>>> FilterParam::freq_res_so(const vector<double> &coef) const
+{
+	vector<vector<complex<double>>> res;
+		res.reserve(bands.size());
+
+	for (unsigned int i = 0; i < bands.size(); ++i)    // 周波数帯域のループ
+	{
+		vector<complex<double>> band_res;
+			band_res.reserve(csw.at(i).size());
+
+		for (unsigned int j = 0; j < csw.at(i).size(); ++j)  // 周波数帯域内の分割数によるループ
+		{
+			complex<double> frac_over(1.0, 1.0);
+			complex<double> frac_under(1.0, 1.0);
+
+			frac_over *= 1.0 + coef.at(1)*csw.at(i).at(j);
+			for (unsigned int n = 2; n < n_order; n += 2)
+			{
+				frac_over *= 1.0 + coef.at(n)*csw.at(i).at(j) + coef.at(n + 1)*csw2.at(i).at(j);
+			}
+
+			frac_under *= 1.0 + coef.at(n_order + 1)*csw.at(i).at(j);
+			for (unsigned int m = n_order + 2; m < opt_order(); m += 2)
+			{
+				frac_under *= 1.0 + coef.at(m)*csw.at(i).at(j) + coef.at(m + 1)*csw2.at(i).at(j);
+			}
+
+			band_res.emplace_back( coef.at(0)*(frac_over / frac_under) );
+		}
+		res.emplace_back(band_res);
+	}
 	return res;
 }
 
