@@ -119,6 +119,7 @@ protected:
 	vector<vector<complex<double>>> desire_res;		// 所望特性の周波数特性
 
 	function< vector<vector<complex<double>>>(const FilterParam*, const vector<double>&) > freq_res_func;
+	function< vector<vector<double>>(const FilterParam*, const vector<double>&) > group_delay_func;
 	function< double(const FilterParam*, const vector<double>&) > stability_func;
 
 	// 内部メソッド
@@ -128,11 +129,13 @@ protected:
 	 nsplit_approx(0), nsplit_transition(0), group_delay(0.0),
 	 threshold_riple(1.0)
 	{}
+
 	vector<vector<complex<double>>> freq_res_se(const vector<double>&) const;
 	vector<vector<complex<double>>> freq_res_so(const vector<double> &) const;
 	vector<vector<complex<double>>> freq_res_no(const vector<double>&) const;
 	vector<vector<complex<double>>> freq_res_mo(const vector<double>&) const;
 
+	vector<vector<double>> group_delay_so(const vector<double> &) const;
 
 	double judge_stability_even(const vector<double>&) const;
 	double judge_stability_odd(const vector<double>&) const;
@@ -167,7 +170,7 @@ public:
 	{ threshold_riple = input; }
 
 	// normal function
-	/* フィルタ構造体
+	/* # フィルタ構造体
 	 *   周波数特性計算関数
 	 *   コンストラクタに与えられた周波数帯域に
 	 *   応じて，縦続型IIRフィルタの周波数特性を計算する
@@ -181,8 +184,28 @@ public:
 	vector<vector<complex<double>>> freq_res(const vector<double>& coef) const
 	{ return this->freq_res_func(this, coef); }
 	
-	/*
+	/* # フィルタ構造体
+	 *   群遅延特性計算関数
+	 *   コンストラクタに与えられた周波数帯域に
+	 *   応じて，縦続型IIRフィルタの群遅延特性を計算する
+	 *   また，係数列も次数によって適宜分割される
 	 *
+	 *   # 引数
+	 *   vector<double> coef : 係数列(a0, a1, a2[0], a2[1],..., b1, b2[0], b2[1],...)
+	 *   #返り値
+	 *   vector<vector<double>> response : 周波数帯域-周波数分割数の2重配列
+	 */
+	vector<vector<double>> group_delay_res(const vector<double>& coef) const
+	{ return this->group_delay_func(this, coef); }
+
+	/* # フィルタ構造体
+	 *   安定性判別関数
+	 *
+	 *   # 引数
+	 *   vector<double> coef : 係数列(a0, a1, a2[0], a2[1],..., b1, b2[0], b2[1],...)
+	 *   #返り値
+	 *   double response : 安定性のペナルティ
+	 *                         0の場合に安定性を満たす
 	 */
 	double judge_stability(const vector<double>& coef) const
 	{ return this->stability_func(this, coef); }

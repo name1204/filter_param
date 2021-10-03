@@ -167,11 +167,13 @@ FilterParam::FilterParam
 	{
 		if ((m_order % 2) == 0)
 		{
+			printf("group delay se is unimplemented.\n");exit(-1);
 			freq_res_func = &FilterParam::freq_res_se;
 			stability_func = &FilterParam::judge_stability_even;
 		}
 		else
 		{
+			printf("group delay mo is unimplemented.\n");exit(-1);
 			freq_res_func = &FilterParam::freq_res_mo;
 			stability_func = &FilterParam::judge_stability_odd;
 		}
@@ -180,12 +182,14 @@ FilterParam::FilterParam
 	{
 		if ((m_order % 2) == 0)
 		{
+			printf("group delay no is unimplemented.\n");exit(-1);
 			freq_res_func = &FilterParam::freq_res_no;
 			stability_func = &FilterParam::judge_stability_even;
 		}
 		else
 		{
 			freq_res_func = &FilterParam::freq_res_so;
+			group_delay_func = &FilterParam::group_delay_so;
 			stability_func = &FilterParam::judge_stability_odd;
 		}
 	}
@@ -563,6 +567,48 @@ vector<vector<complex<double>>> FilterParam::freq_res_mo(const vector<double>& c
 
 	}
 	return freq;
+}
+
+vector<vector<double>> FilterParam::group_delay_so(const vector<double> &coef) const
+{
+	vector<vector<double>> res;
+		res.reserve(bands.size());
+
+	for (unsigned int i = 0; i < bands.size(); ++i)    // 周波数帯域のループ
+	{
+		vector<double> band_res;
+			band_res.reserve(csw.at(i).size());
+
+		for (unsigned int j = 0; j < csw.at(i).size(); ++j)  // 周波数帯域内の分割数によるループ
+		{
+			complex<double> prime_over = (1.0 + coef.at(1)*csw.at(i).at(j)) / (coef.at(1)*csw.at(i).at(j));
+			complex<double> prime_under = (1.0 + coef.at(n_order + 1)*csw.at(i).at(j)) / (coef.at(n_order + 1)*csw.at(i).at(j));
+			complex<double> prime_gd = prime_over - prime_under;
+
+			complex<double> second_over(1.0, 1.0);
+			complex<double> second_under(1.0, 1.0);
+
+			for (unsigned int n = 2; n < n_order; n += 2)
+			{
+				second_over +=
+					coef.at(n)*csw.at(i).at(j) + 2.0*coef.at(n + 1)*csw2.at(i).at(j)
+					/
+					1.0 + coef.at(n)*csw.at(i).at(j) + coef.at(n + 1)*csw2.at(i).at(j);
+			}
+			for (unsigned int m = n_order + 2; m < opt_order(); m += 2)
+			{
+				second_under +=
+					coef.at(m)*csw.at(i).at(j) + 2.0*coef.at(m + 1)*csw2.at(i).at(j)
+					/
+					1.0 + coef.at(m)*csw.at(i).at(j) + coef.at(m + 1)*csw2.at(i).at(j);
+			}
+			complex<double> second_gd = second_over - second_under;
+
+			band_res.emplace_back( (prime_gd + second_gd).real() );
+		}
+		res.emplace_back(band_res);
+	}
+	return res;
 }
 
 double FilterParam::judge_stability_even(const vector<double>& coef) const
