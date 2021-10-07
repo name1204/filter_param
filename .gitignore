@@ -6,4 +6,5 @@ Release
 *.a
 *.o
 *.exe
+*.png
 .vscode/launch.json
