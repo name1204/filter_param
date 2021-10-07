@@ -24,6 +24,10 @@ void test_FilterParam_freq_res_se();
 void test_FilterParam_freq_res_so();
 void test_FilterParam_freq_res_no();
 void test_FilterParam_freq_res_mo();
+void test_Filter_param_group_delay_se();
+void test_Filter_param_group_delay_so();
+void test_Filter_param_group_delay_no();
+void test_Filter_param_group_delay_mo();
 void test_FilterParam_judge_stability_even();
 void test_FilterParam_judge_stability_odd();
 void test_FilterParam_evaluate_objective_function();
@@ -34,7 +38,11 @@ int main(void)
 {
 	printf("example run\n");
 
-	test_FilterParam_freq_res_so();
+	//テストの実行結果を追記しておきます。値の確認方法が分からないので教えていただきたいです。
+	//test_Filter_param_group_delay_se();
+	//test_Filter_param_group_delay_so();	
+	//test_Filter_param_group_delay_no();
+	//test_Filter_param_group_delay_mo();
 
 	return 0;
 }
@@ -363,6 +371,137 @@ void test_FilterParam_freq_res_mo()
 		for(auto res :band_res)
 		{
 			printf("%f\n", abs(res));
+		}
+	}
+}
+
+void test_Filter_param_group_delay_se()
+{
+   vector<double> coef
+    {
+        0.018656458,
+
+        1.969338828,
+        1.120102082,
+        0.388717952,
+        0.996398946,
+        1.048137529,
+        1.037079725,
+        -4.535575709,
+        6.381429398,
+
+        -0.139429968,
+        0.763426685
+    };
+    auto bands = FilterParam::gen_bands(FilterType::LPF, 0.2, 0.3);
+    FilterParam fparam(8, 2, bands, 200, 50, 5.0);
+
+    auto group_delay_res = fparam.group_delay_res(coef);
+
+    for(auto band_res :group_delay_res)
+    {
+        for(auto res :band_res)
+        {
+            printf("%f\n",res);
+        }
+    }
+}
+
+void test_Filter_param_group_delay_so()
+{
+	vector<double> coef
+	{
+		-0.040659737,
+		
+		-2.372311969,
+		-2.144646171,
+		4.343497453,
+		1.359348897,
+		0.984834163,
+
+		-0.710147059,
+		-0.696696684,
+		0.514853197,
+		0.503697311,
+		0.70680348
+	};
+
+	auto bands = FilterParam::gen_bands(FilterType::LPF, 0.3, 0.345);
+	FilterParam fparam(5, 5, bands, 200, 50, 5.0);
+
+	auto group_delay_res = fparam.group_delay_res(coef);
+
+	for (auto band_res : group_delay_res)
+	{
+		for (auto res : band_res)
+		{
+			printf("%f\n",res);
+		}
+	}
+}
+
+void test_Filter_param_group_delay_no()
+{
+	vector<double> coef
+	{
+		0.025247504683641238,
+
+		0.8885952985540255,
+		-4.097963802039866,
+		5.496940685423355,
+		0.3983519261092186,
+		0.9723236917140877,
+		1.1168784833810899,
+		0.8492039597182939,
+
+		-0.686114259307724,
+		0.22008381076439384,
+		-0.22066728558327908,
+		0.7668032045079851
+	};
+	auto bands = FilterParam::gen_bands(FilterType::LPF, 0.2, 0.275);
+	FilterParam Fparam(7,4,bands,200,50,5.0);
+
+	auto group_delay_res = Fparam.group_delay_res(coef);
+
+	for(auto band:group_delay_res)
+	{
+		for(auto res:band)
+		{
+			printf("%f\n",res);
+		}
+	}
+}
+
+void test_Filter_param_group_delay_mo()
+{
+	vector<double> coef	
+	{
+		-0.040404875,
+
+		0.957674103,
+		0.765466003,
+		-1.585891794,
+		-1.903482473,
+		-0.441904071,
+		0.79143639,
+		-1.149627531,
+		0.965348065,
+		
+		-0.434908839,
+		-1.332562129,
+		0.838349784
+	};
+	auto bands = FilterParam::gen_bands(FilterType::LPF, 0.1, 0.145);
+	FilterParam fparam(8, 3, bands, 200, 50, 5.0);
+
+	auto group_delay_res = fparam.group_delay_res(coef);
+
+	for(auto band_res :group_delay_res)
+	{
+		for(auto res :band_res)
+		{
+			printf("%f\n", res);
 		}
 	}
 }

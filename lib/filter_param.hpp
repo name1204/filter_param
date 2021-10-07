@@ -135,7 +135,10 @@ protected:
 	vector<vector<complex<double>>> freq_res_no(const vector<double>&) const;
 	vector<vector<complex<double>>> freq_res_mo(const vector<double>&) const;
 
+	vector<vector<double>> group_delay_se(const vector<double> &) const;
 	vector<vector<double>> group_delay_so(const vector<double> &) const;
+	vector<vector<double>> group_delay_no(const vector<double> &) const;
+	vector<vector<double>> group_delay_mo(const vector<double> &) const;
 
 	double judge_stability_even(const vector<double>&) const;
 	double judge_stability_odd(const vector<double>&) const;
