@@ -167,7 +167,6 @@ FilterParam::FilterParam
 	{
 		if ((m_order % 2) == 0)
 		{
-
 			freq_res_func = &FilterParam::freq_res_se;
 			group_delay_func = &FilterParam::group_delay_se;
 			stability_func = &FilterParam::judge_stability_even;
@@ -700,8 +699,7 @@ vector<vector<double>> FilterParam::group_delay_no(const vector<double> &coef) c
 
 		for (unsigned int j = 0; j < csw.at(i).size(); ++j)  // 周波数帯域内の分割数によるループ
 		{
-			complex<double> prime_over = (1.0 + coef.at(1)*csw.at(i).at(j)) / (coef.at(1)*csw.at(i).at(j));
-			complex<double> prime_gd = prime_over;
+			complex<double> prime_gd = (1.0 + coef.at(1)*csw.at(i).at(j)) / (coef.at(1)*csw.at(i).at(j));  // calculate fractional over
 
 			complex<double> second_over(0.0, 0.0);
 			complex<double> second_under(0.0, 0.0);
@@ -741,8 +739,8 @@ vector<vector<double>> FilterParam::group_delay_mo(const vector<double> &coef) c
 
 		for (unsigned int j = 0; j < csw.at(i).size(); ++j)  // 周波数帯域内の分割数によるループ
 		{
-			complex<double> prime_under = (1.0 + coef.at(n_order + 1)*csw.at(i).at(j)) / (coef.at(n_order + 1)*csw.at(i).at(j));
-
+			complex<double> prime_gd = (1.0 + coef.at(n_order + 1)*csw.at(i).at(j)) / (coef.at(n_order + 1)*csw.at(i).at(j));   // calculate fractional under
+			
 			complex<double> second_over(0.0, 0.0);
 			complex<double> second_under(0.0, 0.0);
 
@@ -762,7 +760,7 @@ vector<vector<double>> FilterParam::group_delay_mo(const vector<double> &coef) c
 			}
 			complex<double> second_gd = second_over - second_under;
 
-			band_res.emplace_back( ( - prime_under + second_gd).real() );
+			band_res.emplace_back( ( - prime_gd + second_gd).real() );
 		}
 		res.emplace_back(band_res);
 	}
