@@ -38,6 +38,7 @@ int main(void)
 {
 	printf("example run\n");
 
+	test_FilterParam_read_csv();
 	//テストの実行結果を追記しておきます。値の確認方法が分からないので教えていただきたいです。
 	//test_Filter_param_group_delay_se();
 	//test_Filter_param_group_delay_so();	

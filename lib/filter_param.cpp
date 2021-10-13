@@ -282,7 +282,7 @@ FilterType FilterParam::analyze_type(const string& input)
 	FilterType type;
 	string str = input;
 	str.erase(remove(str.begin(), str.end(), ' '), str.end());
-	string csv_space = regex_replace(str, regex("[(),:]+"), " ");
+	string csv_space = regex_replace(str, regex("[(),:]+"), string(" "));
 	auto input_type = split_char(csv_space, ' ');
 
 	if (input_type.size() <= 1)
@@ -328,7 +328,7 @@ vector<double> FilterParam::analyze_edges(const string& input)
 	vector<double> edge;
 	string str = input;
 	str.erase(remove(str.begin(), str.end(), ' '), str.end());
-	string csv_space = regex_replace(str, regex("[(),:]+"), " ");
+	string csv_space = regex_replace(str, regex("[(),:]+"), string(" "));
 	auto input_type = split_char(csv_space, ' ');
 	input_type.erase(input_type.begin());
 
