@@ -285,6 +285,13 @@ FilterType FilterParam::analyze_type(const string& input)
 
 #if __GNUC__ > 5
 	string csv_space = regex_replace(str, regex("[(),:]+"), string(" "));
+#else
+	string csv_space = std::move(str);
+	for(auto& c :csv_space)
+	{
+		if(c == '(' || c == ')' || c == ',' || c == ':')
+			c = ' ';
+	}
 #endif
 
 	auto input_type = split_char(csv_space, ' ');
@@ -335,6 +342,13 @@ vector<double> FilterParam::analyze_edges(const string& input)
 
 #if __GNUC__ > 5
 	string csv_space = regex_replace(str, regex("[(),:]+"), string(" "));
+#else
+	string csv_space = std::move(str);
+	for(auto& c :csv_space)
+	{
+		if(c == '(' || c == ')' || c == ',' || c == ':')
+			c = ' ';
+	}
 #endif
 
 	auto input_type = split_char(csv_space, ' ');
