@@ -870,7 +870,8 @@ double FilterParam::evaluate(const vector<double> &coef) const
 
 vector<double> FilterParam::init_coef(const double a0, const double a, const double b) const
 {
-	thread_local mt19937 mt((unsigned)(time(NULL)*rand()));
+	thread_local random_device rnd;
+	thread_local mt19937 mt(rnd());
 	uniform_real_distribution<> a0_range(-abs(a0), abs(a0));
 	uniform_real_distribution<> a_range(-abs(a), abs(a));
 	uniform_real_distribution<> b_range(-abs(b), abs(b));
@@ -893,7 +894,8 @@ vector<double> FilterParam::init_coef(const double a0, const double a, const dou
 
 vector<double> FilterParam::init_stable_coef(const double a0, const double a) const
 {
-	thread_local mt19937 mt((unsigned)(time(NULL)*rand()));
+	thread_local random_device rnd;
+	thread_local mt19937 mt(rnd());
 	uniform_real_distribution<> a0_range(-abs(a0), abs(a0));
 	uniform_real_distribution<> a_range(-abs(a), abs(a));
 	uniform_real_distribution<> uniform(-1.0 + numeric_limits<double>::epsilon(), 1.0);
