@@ -830,6 +830,41 @@ double FilterParam::evaluate(const vector<double> &coef) const
 	return(max_error + ct*max_riple*max_riple + cs*penalty_stability);
 }
 
+/* # フィルタ構造体
+ *   ペナルティ関数法による複素誤差を計算する。
+ *	
+ */
+complex<double> FilterParam::complex_evaluate(const vector<double> &coef) const
+{
+	complex<double> max_complex_error = 0.0;	//最大複素誤差
+	double max_error = 0.0;	//最大誤差
+
+	vector<vector<complex<double>>> freq = freq_res(coef);
+
+	for (unsigned int i = 0; i < bands.size(); ++i)    // 周波数帯域のループ
+	{
+		for (unsigned int j = 0; j < csw.at(i).size(); ++j)  // 周波数帯域内の分割数によるループ
+		{
+			switch (bands.at(i).type())	
+			{
+				case BandType::Pass:
+				case BandType::Stop:
+				{
+					complex<double> complex_error = desire_res.at(i).at(j) - freq.at(i).at(j);
+					double error = abs(desire_res.at(i).at(j) - freq.at(i).at(j));
+					if(max_error < error)
+					{
+						max_complex_error = complex_error;
+						max_error = error;
+					}
+					break;
+				}
+			}
+		}
+	}
+	return(max_complex_error);
+}
+
 vector<double> FilterParam::init_coef(const double a0, const double a, const double b) const
 {
 	thread_local random_device rnd;

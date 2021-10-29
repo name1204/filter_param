@@ -214,6 +214,7 @@ public:
 	{ return this->stability_func(this, coef); }
 
 	double evaluate(const vector<double>&) const;
+	complex<double> complex_evaluate(const vector<double>&) const;
 	vector<double> init_coef(const double, const double, const double) const;
 	vector<double> init_stable_coef(const double, const double) const;
 
