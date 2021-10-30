@@ -1,6 +1,7 @@
 name: Release
 on:
-  push:
+  pull_request:
+    types: [closed]
     branches:
       - master
 jobs:
@@ -8,16 +9,34 @@ jobs:
     name: Release
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
+      - name: sparse checkout
+        run: |
+          git clone --filter=blob:none --no-checkout --depth 1 --sparse https://${GITHUB_ACTOR}:${{secrets.GITHUB_TOKEN}}@github.com/${GITHUB_REPOSITORY}.git .
+          git sparse-checkout init --cone
+          git sparse-checkout add lib
+          git checkout -b ${GITHUB_SHA}
+      - name: Create pull request
+        uses: actions/github-script@v2
+        env:
+          BRANCH: ${{ steps.get_branch.outputs.BRANCH }}
+          VERSION: ${{ steps.bump_version.outputs.VERSION }}
         with:
-          fetch-depth: 0
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            github.pulls.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `chore(*): bump v${process.env.VERSION}`,
+              body: `version: ${process.env.BRANCH}`,
+              head: process.env.BRANCH,
+              base: "release"
+            })
       - name: Setup Node.js
         uses: actions/setup-node@v2
         with:
           node-version: 'lts/*'
       - name: Install dependencies
-        run:  |
+        run: |
           npm install semantic-release @semantic-release/changelog @semantic-release/git
       - name: Release
         env:
