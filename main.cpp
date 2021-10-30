@@ -41,6 +41,7 @@ int main(void)
 	printf("example run\n");
 
 	test_FilterParam_gprint_amp();
+	test_FilterParam_gprint_mag();
 
 	return 0;
 }
