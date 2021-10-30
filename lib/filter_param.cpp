@@ -1026,26 +1026,29 @@ void FilterParam::gprint_amp
 (const vector<double> &coef, const string &filename, const double left, const double right) const
 {
 	BandParam range(BandType::Pass, left, right);
-	FilterParam fparam(n_order, m_order, range, 250, 0, 5.0);
+	FilterParam fparam(n_order, m_order, range, 1000, 0, 5.0);
 	auto freq_res = fparam.freq_res(coef);
 
-	constexpr double dpi = 2.0*M_PI/250.0; //固定値の事前計算
+	constexpr double dpi = 2.0*M_PI/1000.0; //固定値の事前計算
 	const double x_step = (right-left) * dpi;
 
 	//gnuplotで出力
-    FILE *gp = popen("gnuplot -persist", "w");
-    fprintf(gp, "set terminal pngcairo\n");
+	FILE *gp = popen("gnuplot -persist", "w");
+	fprintf(gp, "set terminal pngcairo size 1280, 960\n");
 	fprintf(gp, "set output '%s'\n", filename.c_str());
-    fprintf(gp, "set xlabel 'Normalized angular frequency'\n"); //正規化角周波数
-    fprintf(gp, "set ylabel 'Amplitude'\n");
-	fprintf(gp, "set key    font 'Times New Roman,10'\n");
-	fprintf(gp, "set xlabel font 'Times New Roman,12'\n");
-	fprintf(gp, "set ylabel font 'Times New Roman,12'\n");
-	fprintf(gp, "set tics   font 'Times New Roman,10'\n");
+	fprintf(gp, "set grid\n");
+	fprintf(gp, "set xlabel 'Normalized angular frequency'\n"); //正規化角周波数
+	fprintf(gp, "set ylabel 'Amplitude'\n");
+	fprintf(gp, "set key    font 'Times New Roman,15'\n");
+	fprintf(gp, "set xlabel font 'Times New Roman,20'\n");
+	fprintf(gp, "set ylabel font 'Times New Roman,20'\n");
+	fprintf(gp, "set tics   font 'Times New Roman,15'\n");
 	fprintf(gp, "set xrange [%f:%f]\n", left*2.0*M_PI, right*2.0*M_PI);
 	fprintf(gp, "set xtics 0, 0.1*pi, pi\n");
 	fprintf(gp, "set format x '%.1Pπ'\n");
-    fprintf(gp, "plot '-' with lines title \"\n");
+	fprintf(gp, "set lmargin 20\n");
+	fprintf(gp, "set bmargin 10\n");
+	fprintf(gp, "plot '-' with lines title \"\n");
 
    	for(auto band_res :freq_res)
 	{
@@ -1064,25 +1067,28 @@ void FilterParam::gprint_mag
 (const vector<double> &coef, const string &filename, const double left, const double right) const
 {
 	BandParam range(BandType::Pass, left, right);
-	FilterParam fparam(n_order, m_order, range, 250, 0, 5.0);
+	FilterParam fparam(n_order, m_order, range, 1000, 0, 5.0);
 	auto freq_res = fparam.freq_res(coef);
 
-	constexpr double dpi = 2.0*M_PI/250.0;  //固定値の事前計算
+	constexpr double dpi = 2.0*M_PI/1000.0;  //固定値の事前計算
 	const double x_step = (right-left) * dpi;
 
 	//gnuplotで出力
     FILE *gp = popen("gnuplot -persist", "w");
-    fprintf(gp, "set terminal pngcairo\n");
+    fprintf(gp, "set terminal pngcairo size 1280, 960\n");
 	fprintf(gp, "set output '%s'\n", filename.c_str());
+	fprintf(gp, "set grid\n");
     fprintf(gp, "set xlabel 'Normalized angular frequency'\n"); //正規化角周波数
-    fprintf(gp, "set ylabel 'Magnitude [dB]'\n");
-	fprintf(gp, "set key    font 'Times New Roman,10'\n");
-	fprintf(gp, "set xlabel font 'Times New Roman,12'\n");
-	fprintf(gp, "set ylabel font 'Times New Roman,12'\n");
-	fprintf(gp, "set tics   font 'Times New Roman,10'\n");
+    fprintf(gp, "set ylabel 'Magnitude[dB]'\n");
+	fprintf(gp, "set key    font 'Times New Roman,15'\n");
+	fprintf(gp, "set xlabel font 'Times New Roman,20'\n");
+	fprintf(gp, "set ylabel font 'Times New Roman,20'\n");
+	fprintf(gp, "set tics   font 'Times New Roman,15'\n");
 	fprintf(gp, "set xrange [%f:%f]\n", left*2.0*M_PI, right*2.0*M_PI);
 	fprintf(gp, "set xtics 0, 0.1*pi, pi\n");
 	fprintf(gp, "set format x '%.1Pπ'\n");
+	fprintf(gp, "set lmargin 20\n");
+	fprintf(gp, "set bmargin 10\n");
     fprintf(gp, "plot '-' with lines title \"\n");
 
    	for(auto band_res :freq_res)
