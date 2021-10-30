@@ -23,7 +23,6 @@ jobs:
           BRANCH: ${{ steps.get_branch.outputs.BRANCH }}
           VERSION: ${{ steps.bump_version.outputs.VERSION }}
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             github.pulls.create({
               owner: context.repo.owner,
