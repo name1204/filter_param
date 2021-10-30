@@ -328,9 +328,9 @@ void test_FilterParam_freq_res_no()
 		0.7668032045079851
 	};
 	auto bands = FilterParam::gen_bands(FilterType::LPF, 0.2, 0.275);
-	FilterParam Fparam(7,4,bands,200,50,5.0);
+	FilterParam fparam(7,4,bands,200,50,5.0);
 
-	vector<vector<complex<double>>> freq=Fparam.freq_res(coef);
+	vector<vector<complex<double>>> freq = fparam.freq_res(coef);
 
 	for(auto band:freq)
 	{
@@ -459,9 +459,9 @@ void test_Filter_param_group_delay_no()
 		0.7668032045079851
 	};
 	auto bands = FilterParam::gen_bands(FilterType::LPF, 0.2, 0.275);
-	FilterParam Fparam(7,4,bands,200,50,5.0);
+	FilterParam fparam(7,4,bands,200,50,5.0);
 
-	auto group_delay_res = Fparam.group_delay_res(coef);
+	auto group_delay_res = fparam.group_delay_res(coef);
 
 	for(auto band:group_delay_res)
 	{
@@ -725,9 +725,9 @@ void test_FilterParam_evaluate_objective_function()
 	};
 
 	auto bands = FilterParam::gen_bands(FilterType::LPF, 0.2, 0.275);
-	FilterParam Fparam(7,4,bands,200,50,5.0);
+	FilterParam fparam(7,4,bands,200,50,5.0);
 
-	auto objective_function_value = Fparam.evaluate(coef);
+	auto objective_function_value = fparam.evaluate(coef);
 
 	printf("objective_function_value %f\n",objective_function_value);
 }
@@ -780,7 +780,7 @@ void test_FilterParam_init_stable_coef()
 void test_FilterParam_gprint_amp()
 {
 	auto bands = FilterParam::gen_bands(FilterType::LPF, 0.2, 0.275);
-	FilterParam Fparam(7,4,bands,200,50,5.0);
+	FilterParam fparam(7,4,bands,200,50,5.0);
 
 	vector<double> coef_test
 	{
@@ -801,26 +801,26 @@ void test_FilterParam_gprint_amp()
 	};
 
 	// BandParamが共に[0.0 : 0.5]の範囲内＆``left < right``のため成功
-	Fparam.gprint_amp(coef_test, string("Amp1.png"), 0.0, 0.3);
+	fparam.gprint_amp(coef_test, string("Amp1.png"), 0.0, 0.3);
 
-	Fparam.gprint_amp(coef_test, string("Amp2.png"), 0.0, 0.5);
+	fparam.gprint_amp(coef_test, string("Amp2.png"), 0.0, 0.5);
 
-	Fparam.gprint_amp(coef_test, string("Amp3.png"), 0.2, 0.5);
+	fparam.gprint_amp(coef_test, string("Amp3.png"), 0.2, 0.5);
 
-	Fparam.gprint_amp(coef_test, string("Amp4.png"), 0.2, 0.3);
+	fparam.gprint_amp(coef_test, string("Amp4.png"), 0.2, 0.3);
 
 	// 以下失敗例
-	// Fparam.gprint_amp(coef_test, string("Amp5.png"), -0.2, 0.3); //BandParamよりleft<0.0のため失敗
+	// fparam.gprint_amp(coef_test, string("Amp5.png"), -0.2, 0.3); //BandParamよりleft<0.0のため失敗
 
-	// Fparam.gprint_amp(coef_test, string("Amp6.png"), 0.3, 0.2); //BandParamよりleft>rightのため失敗
+	// fparam.gprint_amp(coef_test, string("Amp6.png"), 0.3, 0.2); //BandParamよりleft>rightのため失敗
 
-	// Fparam.gprint_amp(coef_test, string("Amp7.png"), 0.2, 0.6); //BandParamよりright>0.5のため失敗
+	// fparam.gprint_amp(coef_test, string("Amp7.png"), 0.2, 0.6); //BandParamよりright>0.5のため失敗
 }
 
 void test_FilterParam_gprint_mag()
 {
 	auto bands = FilterParam::gen_bands(FilterType::LPF, 0.2, 0.275);
-	FilterParam Fparam(7,4,bands,200,50,5.0);
+	FilterParam fparam(7,4,bands,200,50,5.0);
 
 	vector<double> coef_test
 	{
@@ -841,18 +841,18 @@ void test_FilterParam_gprint_mag()
 	};
 
 	// BandParamが共に[0.0 : 0.5]の範囲内＆``left < right``のため成功
-	Fparam.gprint_mag(coef_test, string("Mag1.png"), 0.0, 0.3);
+	fparam.gprint_mag(coef_test, string("Mag1.png"), 0.0, 0.3);
 
-	Fparam.gprint_mag(coef_test, string("Mag2.png"), 0.0, 0.5);
+	fparam.gprint_mag(coef_test, string("Mag2.png"), 0.0, 0.5);
 
-	Fparam.gprint_mag(coef_test, string("Mag3.png"), 0.2, 0.5);
+	fparam.gprint_mag(coef_test, string("Mag3.png"), 0.2, 0.5);
 
-	Fparam.gprint_mag(coef_test, string("Mag4.png"), 0.2, 0.3);
+	fparam.gprint_mag(coef_test, string("Mag4.png"), 0.2, 0.3);
 
 	// 以下失敗例
-	// Fparam.gprint_mag(coef_test, string("Mag5.png"), -0.2, 0.3); //BandParamよりleft<0.0のため失敗
+	// fparam.gprint_mag(coef_test, string("Mag5.png"), -0.2, 0.3); //BandParamよりleft<0.0のため失敗
 
-	// Fparam.gprint_mag(coef_test, string("Mag6.png"), 0.3, 0.2); //BandParamよりleft>rightのため失敗
+	// fparam.gprint_mag(coef_test, string("Mag6.png"), 0.3, 0.2); //BandParamよりleft>rightのため失敗
 
-	// Fparam.gprint_mag(coef_test, string("Mag7.png"), 0.2, 0.6); //BandParamよりright>0.5のため失敗
+	// fparam.gprint_mag(coef_test, string("Mag7.png"), 0.2, 0.6); //BandParamよりright>0.5のため失敗
 }
