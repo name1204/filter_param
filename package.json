@@ -1,0 +1,37 @@
+{
+  "private": true,
+  "name": "FilterParam",
+  "version": "1.0.0",
+  "description": "Support cording for digital filter",
+  "main": "index.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "dependencies": {
+    "semantic-release": "^18.0.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/chatblanc-ciel/filter_param.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/chatblanc-ciel/filter_param/issues"
+  },
+  "homepage": "https://github.com/chatblanc-ciel/filter_param#readme",
+  "release": {
+    "plugins": [
+      "@semantic-release/release-notes-generator",
+      "@semantic-release/github"
+    ],
+    "branches": [
+      "master"
+    ]
+  }
+}

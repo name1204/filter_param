@@ -7,4 +7,5 @@ Release
 *.o
 *.exe
 *.png
-.vscode/launch.json
+.vscode
+node_modules
