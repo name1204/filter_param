@@ -836,9 +836,7 @@ double FilterParam::evaluate(const vector<double> &coef) const
  */
 vector<complex<double>> FilterParam::complex_error(const vector<double> &coef) const
 {
-	complex<double> max_complex_error = 0.0;	//最大複素誤差
 	vector<complex<double>> complex_error;	//複素誤差
-	double max_error = 0.0;	//最大誤差
 
 	vector<vector<complex<double>>> freq = freq_res(coef);
 
@@ -851,15 +849,11 @@ vector<complex<double>> FilterParam::complex_error(const vector<double> &coef) c
 				case BandType::Pass:
 				case BandType::Stop:
 				{
-					complex<double> com_error = desire_res.at(i).at(j) - freq.at(i).at(j);
-					double error = abs(desire_res.at(i).at(j) - freq.at(i).at(j));
-					complex_error.emplace_back(com_error);
-					if(max_error < error)
-					{
-						max_complex_error = com_error;
-						max_error = error;
-					}
-					break;
+					complex_error.emplace_back(desire_res.at(i).at(j) - freq.at(i).at(j));
+				}
+				case BandType::Transition:
+				{
+					complex_error.emplace_back(desire_res.at(i).at(j) - desire_res.at(i).at(j));	//ここって0.0でも大丈夫ですか？
 				}
 			}
 		}
