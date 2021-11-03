@@ -12,6 +12,7 @@
 #include <chrono>
 
 using namespace std;
+using namespace filter::iir;
 
 void test_BandParam_new();
 void test_Band_generator();
@@ -40,6 +41,25 @@ int main(void)
 {
 	printf("example run\n");
 
+	test_BandParam_new();
+	test_Band_generator();
+	test_analyze_edges();
+	test_FilterParam_read_csv();
+	test_FilterParam_csw();
+	test_FilterParam_desire_res();
+	test_FilterParam_freq_res_se();
+	test_FilterParam_freq_res_so();
+	test_FilterParam_freq_res_no();
+	test_FilterParam_freq_res_mo();
+	test_Filter_param_group_delay_se();
+	test_Filter_param_group_delay_so();
+	test_Filter_param_group_delay_no();
+	test_Filter_param_group_delay_mo();
+	test_FilterParam_judge_stability_even();
+	test_FilterParam_judge_stability_odd();
+	test_FilterParam_evaluate_objective_function();
+	test_FilterParam_init_coef();
+	test_FilterParam_init_stable_coef();
 	test_FilterParam_gprint_amp();
 	test_FilterParam_gprint_mag();
 
@@ -680,7 +700,7 @@ void test_FilterParam_judge_stability_odd()
 	};
 
 	penalty = fparam.judge_stability(coef_test4);
-	printf("instability %f\n", penalty);
+	printf("stability %f\n", penalty);
 
 	vector<double> coef_test5
 	{

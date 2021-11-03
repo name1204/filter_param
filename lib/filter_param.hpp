@@ -28,10 +28,9 @@
 #include <functional>
 #include <random>
 
-using namespace std;
-
 template <typename... Args>
-string format(const string &, Args...);
+std::string format(const std::string &, Args...);
+
 
 /* フィルタの種類を示す列挙体
  *
@@ -96,9 +95,13 @@ public:
 	{ return right_side; }
 	double width() const
 	{ return right_side - left_side; }
-	string sprint();
+	std::string sprint();
 };
 
+namespace filter
+{
+namespace iir
+{
 struct FilterParam
 {
 protected:
@@ -106,7 +109,7 @@ protected:
 
 	unsigned int n_order;
 	unsigned int m_order;
-	vector<BandParam> bands;
+	std::vector<BandParam> bands;
 	unsigned int nsplit_approx;
 	unsigned int nsplit_transition;
 	double group_delay;
@@ -114,13 +117,13 @@ protected:
 
 	// 内部パラメータ
 	
-	vector<vector<complex<double>>> csw;			// 複素正弦波e^-jωを周波数帯域別に格納
-	vector<vector<complex<double>>> csw2;			// 複素正弦波e^-j2ωを周波数帯域別に格納
-	vector<vector<complex<double>>> desire_res;		// 所望特性の周波数特性
+	std::vector<std::vector<std::complex<double>>> csw;			// 複素正弦波e^-jωを周波数帯域別に格納
+	std::vector<std::vector<std::complex<double>>> csw2;			// 複素正弦波e^-j2ωを周波数帯域別に格納
+	std::vector<std::vector<std::complex<double>>> desire_res;		// 所望特性の周波数特性
 
-	function< vector<vector<complex<double>>>(const FilterParam*, const vector<double>&) > freq_res_func;
-	function< vector<vector<double>>(const FilterParam*, const vector<double>&) > group_delay_func;
-	function< double(const FilterParam*, const vector<double>&) > stability_func;
+	std::function< std::vector<std::vector<std::complex<double>>>(const FilterParam*, const std::vector<double>&) > freq_res_func;
+	std::function< std::vector<std::vector<double>>(const FilterParam*, const std::vector<double>&) > group_delay_func;
+	std::function< double(const FilterParam*, const std::vector<double>&) > stability_func;
 
 	// 内部メソッド
 
@@ -130,23 +133,23 @@ protected:
 	 threshold_riple(1.0)
 	{}
 
-	vector<vector<complex<double>>> freq_res_se(const vector<double>&) const;
-	vector<vector<complex<double>>> freq_res_so(const vector<double> &) const;
-	vector<vector<complex<double>>> freq_res_no(const vector<double>&) const;
-	vector<vector<complex<double>>> freq_res_mo(const vector<double>&) const;
+	std::vector<std::vector<std::complex<double>>> freq_res_se(const std::vector<double>&) const;
+	std::vector<std::vector<std::complex<double>>> freq_res_so(const std::vector<double> &) const;
+	std::vector<std::vector<std::complex<double>>> freq_res_no(const std::vector<double>&) const;
+	std::vector<std::vector<std::complex<double>>> freq_res_mo(const std::vector<double>&) const;
 
-	vector<vector<double>> group_delay_se(const vector<double> &) const;
-	vector<vector<double>> group_delay_so(const vector<double> &) const;
-	vector<vector<double>> group_delay_no(const vector<double> &) const;
-	vector<vector<double>> group_delay_mo(const vector<double> &) const;
+	std::vector<std::vector<double>> group_delay_se(const std::vector<double> &) const;
+	std::vector<std::vector<double>> group_delay_so(const std::vector<double> &) const;
+	std::vector<std::vector<double>> group_delay_no(const std::vector<double> &) const;
+	std::vector<std::vector<double>> group_delay_mo(const std::vector<double> &) const;
 
-	double judge_stability_even(const vector<double>&) const;
-	double judge_stability_odd(const vector<double>&) const;
+	double judge_stability_even(const std::vector<double>&) const;
+	double judge_stability_odd(const std::vector<double>&) const;
 
 public:
 	FilterParam(unsigned int, unsigned int, BandParam,
 				unsigned int, unsigned int, double);
-	FilterParam(unsigned int, unsigned int, vector<BandParam>,
+	FilterParam(unsigned int, unsigned int, std::vector<BandParam>,
 				unsigned int, unsigned int, double);
 
 
@@ -159,7 +162,7 @@ public:
 	{ return n_order; }
 	unsigned int opt_order() const
 	{ return 1 + n_order + m_order; }
-	vector<BandParam> fbands() const
+	std::vector<BandParam> fbands() const
 	{ return bands; }
 	unsigned int partition_approx() const
 	{ return nsplit_approx; }
@@ -188,7 +191,7 @@ public:
 	 *   #返り値
 	 *   vector<vector<complex<double>>> response : 周波数帯域-周波数分割数の2重配列
 	 */
-	vector<vector<complex<double>>> freq_res(const vector<double>& coef) const
+	std::vector<std::vector<std::complex<double>>> freq_res(const std::vector<double>& coef) const
 	{ return this->freq_res_func(this, coef); }
 	
 	/* # フィルタ構造体
@@ -202,7 +205,7 @@ public:
 	 *   #返り値
 	 *   vector<vector<double>> response : 周波数帯域-周波数分割数の2重配列
 	 */
-	vector<vector<double>> group_delay_res(const vector<double>& coef) const
+	std::vector<std::vector<double>> group_delay_res(const std::vector<double>& coef) const
 	{ return this->group_delay_func(this, coef); }
 
 	/* # フィルタ構造体
@@ -214,40 +217,46 @@ public:
 	 *   double response : 安定性のペナルティ
 	 *                         0の場合に安定性を満たす
 	 */
-	double judge_stability(const vector<double>& coef) const
+	double judge_stability(const std::vector<double>& coef) const
 	{ return this->stability_func(this, coef); }
 
-	double evaluate(const vector<double>&) const;
-	vector<double> init_coef(const double, const double, const double) const;
-	vector<double> init_stable_coef(const double, const double) const;
+	double evaluate(const std::vector<double>&) const;
+	std::vector<double> init_coef(const double, const double, const double) const;
+	std::vector<double> init_stable_coef(const double, const double) const;
 	
-	void gprint_amp(const vector<double>&, const string&, const double, const double) const;
-	void gprint_mag(const vector<double>&, const string&, const double, const double) const;
+	void gprint_amp(const std::vector<double>&, const std::string&, const double, const double) const;
+	void gprint_mag(const std::vector<double>&, const std::string&, const double, const double) const;
 
 	// static function
 	
-	static vector<FilterParam> read_csv(string&);
+	static std::vector<FilterParam> read_csv(std::string&);
 
 	template <typename... Args>
-	static vector<BandParam> gen_bands(FilterType, Args...);
-	static FilterType analyze_type(const string&);
-	static vector<double> analyze_edges(const string&);
-	static vector<complex<double>> gen_csw(const BandParam&, const unsigned int);
-	static vector<complex<double>> gen_csw2(const BandParam&, const unsigned int);
-	static vector<complex<double>> gen_desire_res(const BandParam&, const unsigned int, const double);
+	static std::vector<BandParam> gen_bands(FilterType, Args...);
+	static FilterType analyze_type(const std::string&);
+	static std::vector<double> analyze_edges(const std::string&);
+	static std::vector<std::complex<double>> gen_csw(const BandParam&, const unsigned int);
+	static std::vector<std::complex<double>> gen_csw2(const BandParam&, const unsigned int);
+	static std::vector<std::complex<double>> gen_desire_res(const BandParam&, const unsigned int, const double);
 };
+
+} // namespace iir
+} // namespace filter
+
+
+
 
 //-------template function---------------------------------------
 /* # String format function
  *
  */
 template <typename... Args>
-string format(const string &fmt, Args... args)
+std::string format(const std::string &fmt, Args... args)
 {
 	size_t len = snprintf(nullptr, 0, fmt.c_str(), args...);
-	vector<char> buf(len + 1);
+	std::vector<char> buf(len + 1);
 	snprintf(&buf[0], len + 1, fmt.c_str(), args...);
-	return string(&buf[0], &buf[0] + len);
+	return std::string(&buf[0], &buf[0] + len);
 }
 
 /* # フィルタ構造体
@@ -264,9 +273,9 @@ string format(const string &fmt, Args... args)
  * vector<BandParam> bands : 連続した周波数帯域の配列
  */
 template <typename... Args>
-vector<BandParam> FilterParam::gen_bands(FilterType ftype, Args... edges)
+std::vector<BandParam> filter::iir::FilterParam::gen_bands(FilterType ftype, Args... edges)
 {
-	vector<BandParam> bands;
+	std::vector<BandParam> bands;
 
 	switch (ftype)
 	{

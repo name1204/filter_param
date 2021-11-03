@@ -7,9 +7,11 @@
 
 #include "filter_param.hpp"
 
-using namespace std;
 
-FILE *fileopen(const string &filename, const char mode, const string &call_file, const int call_line)
+namespace filter
+{
+
+FILE *fileopen(const std::string &filename, const char mode, const std::string &call_file, const int call_line)
 {
 	FILE *fp = fopen(filename.c_str(), &mode);
 	if (fp == NULL)
@@ -22,11 +24,11 @@ FILE *fileopen(const string &filename, const char mode, const string &call_file,
 	return fp;
 }
 
-vector<string> split_char(string &str, char spliter)
+std::vector<std::string> split_char(std::string &str, char spliter)
 {
-	stringstream ss{str};
-	vector<std::string> strs;
-	string buf;
+	std::stringstream ss{str};
+	std::vector<std::string> strs;
+	std::string buf;
 	while (std::getline(ss, buf, spliter))
 	{
 		strs.emplace_back(buf);
@@ -34,29 +36,8 @@ vector<string> split_char(string &str, char spliter)
 	return strs;
 }
 
-string BandParam::sprint()
+namespace iir
 {
-	string str;
-	switch (band_type)
-	{
-		case BandType::Pass:
-		{
-			str = format("PassBand(%6.3f, %6.3f)", left_side, right_side);
-			break;
-		}
-		case BandType::Stop:
-		{
-			str = format("StopBand(%6.3f, %6.3f)", left_side, right_side);
-			break;
-		}
-		case BandType::Transition:
-		{
-			str = format("TransitionBand(%6.3f, %6.3f)", left_side, right_side);
-			break;
-		}
-	}
-	return str;
-}
 
 /* # フィルタ構造体
  *   FilterParamという構造体でメンバ変数を()内で初期化、これらの情報を基に
@@ -77,11 +58,13 @@ FilterParam::FilterParam
 (unsigned int zero, unsigned int pole, BandParam input_band,
 	unsigned int input_nsplit_approx, unsigned int input_nsplit_transition,
 	double gd)
-:n_order(zero), m_order(pole), bands(vector<BandParam> {input_band}),
+:n_order(zero), m_order(pole), bands(std::vector<BandParam> {input_band}),
  nsplit_approx(input_nsplit_approx), nsplit_transition(input_nsplit_transition),
  group_delay(gd),
  threshold_riple(1.0)
 {
+	using std::vector;
+
 	// 帯域ごとの分割数算出
 	double approx_range = 0.0;
 	double transition_range = 0.0;
@@ -182,7 +165,7 @@ FilterParam::FilterParam
 }
 
 FilterParam::FilterParam
-(unsigned int zero, unsigned int pole, vector<BandParam> input_bands,
+(unsigned int zero, unsigned int pole, std::vector<BandParam> input_bands,
 	unsigned int input_nsplit_approx, unsigned int input_nsplit_transition,
 	double gd)
 :n_order(zero), m_order(pole), bands(input_bands),
@@ -190,6 +173,8 @@ FilterParam::FilterParam
  group_delay(gd),
  threshold_riple(1.0)
 {
+	using std::vector;
+
 	// 周波数帯域の整合性チェック
 	double band_left = 0.0;
 	for (auto bp : bands)
@@ -341,10 +326,12 @@ FilterParam::FilterParam
  * # 返り値
  * vector<FilterParam> params : CSVファイルにある分，全部の所望特性を格納した配列
  */
-vector<FilterParam> FilterParam::read_csv(string& filename)
+std::vector<FilterParam> FilterParam::read_csv(std::string& filename)
 {
+	using std::vector;
+
 	vector<FilterParam> filter_params;
-	ifstream ifs(filename);
+	std::ifstream ifs(filename);
 	if (!ifs)
 	{
 		fprintf(stderr,
@@ -353,7 +340,7 @@ vector<FilterParam> FilterParam::read_csv(string& filename)
 		exit(EXIT_FAILURE);
 	}
 
-	string buf;
+	std::string buf;
 	getline(ifs, buf); // ヘッダ読み飛ばし
 	while (getline(ifs, buf))
 	{
@@ -400,14 +387,16 @@ vector<FilterParam> FilterParam::read_csv(string& filename)
  *
  *   Other(path) : その他の特性のフィルタ。pathは周波数帯域の情報を記したファイルへの相対パス
  */
-FilterType FilterParam::analyze_type(const string& input)
+FilterType FilterParam::analyze_type(const std::string& input)
 {
+	using std::string;
+
 	FilterType type;
 	string str = input;
 	str.erase(remove(str.begin(), str.end(), ' '), str.end());
 
 #if __GNUC__ > 5
-	string csv_space = regex_replace(str, regex("[(),:]+"), string(" "));
+	string csv_space = regex_replace(str, std::regex("[(),:]+"), string(" "));
 #else
 	string csv_space = std::move(str);
 	for(auto& c :csv_space)
@@ -457,14 +446,17 @@ FilterType FilterParam::analyze_type(const string& input)
  * # 返り値
  * vector<double> edge : 解析・分離した周波数帯域端の配列
  */
-vector<double> FilterParam::analyze_edges(const string& input)
+std::vector<double> FilterParam::analyze_edges(const std::string& input)
 {
+	using std::vector;
+	using std::string;
+
 	vector<double> edge;
 	string str = input;
 	str.erase(remove(str.begin(), str.end(), ' '), str.end());
 
 #if __GNUC__ > 5
-	string csv_space = regex_replace(str, regex("[(),:]+"), string(" "));
+	string csv_space = regex_replace(str, std::regex("[(),:]+"), string(" "));
 #else
 	string csv_space = std::move(str);
 	for(auto& c :csv_space)
@@ -504,10 +496,10 @@ vector<double> FilterParam::analyze_edges(const string& input)
  *                                        csw = Complex Sin Wave
  *
  */
-vector<complex<double>> FilterParam::gen_csw
+std::vector<std::complex<double>> FilterParam::gen_csw
 (const BandParam& bp, const unsigned int nsplit)
 {
-	vector<complex<double>> csw;
+	std::vector<std::complex<double>> csw;
 		csw.reserve(nsplit);
 	const double step_size = bp.width() / (double)nsplit;
 	const double left = bp.left();
@@ -515,7 +507,7 @@ vector<complex<double>> FilterParam::gen_csw
 
 	for (unsigned int i = 0; i < nsplit; ++i)
 	{
-		csw.emplace_back(polar(1.0, dpi * (left + step_size * (double) i)));
+		csw.emplace_back(std::polar(1.0, dpi * (left + step_size * (double) i)));
 	}
 
 	return csw;
@@ -534,10 +526,10 @@ vector<complex<double>> FilterParam::gen_csw
  *                                        csw2 = Complex Sin Wave 2(second)
  *
  */
-vector<complex<double>> FilterParam::gen_csw2
+std::vector<std::complex<double>> FilterParam::gen_csw2
 (const BandParam& bp, const unsigned int nsplit)
 {
-	vector<complex<double>> csw2;
+	std::vector<std::complex<double>> csw2;
 		csw2.reserve(nsplit);
 	const double step_size = bp.width() / (double)nsplit;
 	const double left = bp.left();
@@ -545,7 +537,7 @@ vector<complex<double>> FilterParam::gen_csw2
 
 	for (unsigned int i = 0; i < nsplit; ++i)
 	{
-		csw2.emplace_back(polar(1.0, dpi * (left + step_size * (double) i)));
+		csw2.emplace_back(std::polar(1.0, dpi * (left + step_size * (double) i)));
 	}
 
 	return csw2;
@@ -592,7 +584,7 @@ vector<vector<complex<double>>> FilterParam::freq_res_se(vector<double>& coef)
 vector<complex<double>> FilterParam::gen_desire_res
 (const BandParam& bp, const unsigned int nsplit, const double group_delay)
 {
-	vector<complex<double>> desire;
+	std::vector<std::complex<double>> desire;
 
 	switch (bp.type())
 	{
@@ -606,7 +598,7 @@ vector<complex<double>> FilterParam::gen_desire_res
 
 			for (unsigned int i = 0; i < nsplit; ++i)
 			{
-				desire.emplace_back(polar(1.0, ang * (left + step_size * (double) i)));
+				desire.emplace_back(std::polar(1.0, ang * (left + step_size * (double) i)));
 			}
 			break;
 		}
@@ -622,8 +614,12 @@ vector<complex<double>> FilterParam::gen_desire_res
 	return desire;
 }
 
-vector<vector<complex<double>>> FilterParam::freq_res_se(const vector<double>& coef) const
+std::vector<std::vector<std::complex<double>>>
+FilterParam::freq_res_se(const std::vector<double>& coef) const
 {
+	using std::vector;
+	using std::complex;
+
 	vector<vector<complex<double>>> res;
 		res.reserve(bands.size());
 
@@ -653,8 +649,12 @@ vector<vector<complex<double>>> FilterParam::freq_res_se(const vector<double>& c
 	return res;
 }
 
-vector<vector<complex<double>>> FilterParam::freq_res_so(const vector<double> &coef) const
+std::vector<std::vector<std::complex<double>>>
+FilterParam::freq_res_so(const std::vector<double> &coef) const
 {
+	using std::vector;
+	using std::complex;
+
 	vector<vector<complex<double>>> res;
 		res.reserve(bands.size());
 
@@ -687,8 +687,12 @@ vector<vector<complex<double>>> FilterParam::freq_res_so(const vector<double> &c
 	return res;
 }
 
-vector<vector<complex<double>>> FilterParam::freq_res_no(const vector<double>& coef) const
+std::vector<std::vector<std::complex<double>>>
+FilterParam::freq_res_no(const std::vector<double>& coef) const
 {
+	using std::vector;
+	using std::complex;
+
 	vector<vector<complex<double>>> freq;
 		freq.reserve(bands.size());
 
@@ -720,8 +724,12 @@ vector<vector<complex<double>>> FilterParam::freq_res_no(const vector<double>& c
 	return freq;
 }
 
-vector<vector<complex<double>>> FilterParam::freq_res_mo(const vector<double>& coef) const
+std::vector<std::vector<std::complex<double>>>
+FilterParam::freq_res_mo(const std::vector<double>& coef) const
 {
+	using std::vector;
+	using std::complex;
+
 	vector<vector<complex<double>>> freq;
 		freq.reserve(bands.size());
 
@@ -752,8 +760,12 @@ vector<vector<complex<double>>> FilterParam::freq_res_mo(const vector<double>& c
 	return freq;
 }
 
-vector<vector<double>> FilterParam::group_delay_se(const vector<double> &coef) const
+std::vector<std::vector<double>>
+FilterParam::group_delay_se(const std::vector<double> &coef) const
 {
+	using std::vector;
+	using std::complex;
+
 	vector<vector<double>> res;
 		res.reserve(bands.size());
 
@@ -790,8 +802,12 @@ vector<vector<double>> FilterParam::group_delay_se(const vector<double> &coef) c
 	return res;
 }
 
-vector<vector<double>> FilterParam::group_delay_so(const vector<double> &coef) const
+std::vector<std::vector<double>>
+FilterParam::group_delay_so(const std::vector<double> &coef) const
 {
+	using std::vector;
+	using std::complex;
+
 	vector<vector<double>> res;
 		res.reserve(bands.size());
 
@@ -832,8 +848,12 @@ vector<vector<double>> FilterParam::group_delay_so(const vector<double> &coef) c
 	return res;
 }
 
-vector<vector<double>> FilterParam::group_delay_no(const vector<double> &coef) const
+std::vector<std::vector<double>>
+FilterParam::group_delay_no(const std::vector<double> &coef) const
 {
+	using std::vector;
+	using std::complex;
+
 	vector<vector<double>> res;
 		res.reserve(bands.size());
 
@@ -872,8 +892,12 @@ vector<vector<double>> FilterParam::group_delay_no(const vector<double> &coef) c
 	return res;
 }
 
-vector<vector<double>> FilterParam::group_delay_mo(const vector<double> &coef) const
+std::vector<std::vector<double>>
+FilterParam::group_delay_mo(const std::vector<double> &coef) const
 {
+	using std::vector;
+	using std::complex;
+
 	vector<vector<double>> res;
 		res.reserve(bands.size());
 
@@ -912,7 +936,7 @@ vector<vector<double>> FilterParam::group_delay_mo(const vector<double> &coef) c
 	return res;
 }
 
-double FilterParam::judge_stability_even(const vector<double>& coef) const
+double FilterParam::judge_stability_even(const std::vector<double>& coef) const
 {
 	double penalty = 0.0;
 
@@ -926,7 +950,7 @@ double FilterParam::judge_stability_even(const vector<double>& coef) const
 	return penalty;
 }
 
-double FilterParam::judge_stability_odd(const vector<double>& coef) const
+double FilterParam::judge_stability_odd(const std::vector<double>& coef) const
 {
 	double penalty = 0.0;
 	
@@ -949,10 +973,13 @@ double FilterParam::judge_stability_odd(const vector<double>& coef) const
  *   ペナルティ関数法による目的関数値を計算する
  *
  */
-double FilterParam::evaluate(const vector<double> &coef) const
+double FilterParam::evaluate(const std::vector<double> &coef) const
 {
+	using std::vector;
+	using std::complex;
+
 	constexpr double cs = 100;	//安定性のペナルティの重み
-	constexpr double ct = 100;	//振幅隆起のペナルティの重み
+	constexpr double ct = 100;		//振幅隆起のペナルティの重み
 
 	double max_error = 0.0;	//最大誤差
 	double max_riple = 0.0;	//振幅隆起のペナルティの値
@@ -991,15 +1018,17 @@ double FilterParam::evaluate(const vector<double> &coef) const
 	return(max_error + ct*max_riple*max_riple + cs*penalty_stability);
 }
 
-vector<double> FilterParam::init_coef(const double a0, const double a, const double b) const
+std::vector<double> FilterParam::init_coef(const double a0, const double a, const double b) const
 {
-	thread_local random_device rnd;
-	thread_local mt19937 mt(rnd());
+	using std::uniform_real_distribution;
+
+	thread_local std::random_device rnd;
+	thread_local std::mt19937 mt(rnd());
 	uniform_real_distribution<> a0_range(-abs(a0), abs(a0));
 	uniform_real_distribution<> a_range(-abs(a), abs(a));
 	uniform_real_distribution<> b_range(-abs(b), abs(b));
 
-	vector<double> coef;
+	std::vector<double> coef;
 		coef.reserve(this->opt_order());
 
 	coef.emplace_back(a0_range(mt));
@@ -1015,15 +1044,17 @@ vector<double> FilterParam::init_coef(const double a0, const double a, const dou
 	return coef;
 }
 
-vector<double> FilterParam::init_stable_coef(const double a0, const double a) const
+std::vector<double> FilterParam::init_stable_coef(const double a0, const double a) const
 {
-	thread_local random_device rnd;
-	thread_local mt19937 mt(rnd());
+	using std::uniform_real_distribution;
+
+	thread_local std::random_device rnd;
+	thread_local std::mt19937 mt(rnd());
 	uniform_real_distribution<> a0_range(-abs(a0), abs(a0));
 	uniform_real_distribution<> a_range(-abs(a), abs(a));
-	uniform_real_distribution<> uniform(-1.0 + numeric_limits<double>::epsilon(), 1.0);
+	uniform_real_distribution<> uniform(-1.0 + std::numeric_limits<double>::epsilon(), 1.0);
 
-	vector<double> coef;
+	std::vector<double> coef;
 		coef.reserve(this->opt_order());
 
 	coef.emplace_back(a0_range(mt));
@@ -1039,7 +1070,7 @@ vector<double> FilterParam::init_stable_coef(const double a0, const double a) co
 	{
 		double b2 = uniform(mt);
 		uniform_real_distribution<>
-			b1_range(-(b2 + 1.0) + numeric_limits<double>::epsilon(), b2 + 1.0);
+			b1_range(-(b2 + 1.0) + std::numeric_limits<double>::epsilon(), b2 + 1.0);
 		double b1 = b1_range(mt);
 
 		coef.emplace_back(b1);
@@ -1061,7 +1092,8 @@ vector<double> FilterParam::init_stable_coef(const double a0, const double a) co
  * 
  */
 void FilterParam::gprint_amp
-(const vector<double> &coef, const string &filename, const double left, const double right) const
+(const std::vector<double> &coef, const std::string &filename,
+		const double left, const double right) const
 {
 	BandParam range(BandType::Pass, left, right);
 	FilterParam fparam(n_order, m_order, range, 1000, 0, 5.0);
@@ -1102,7 +1134,8 @@ void FilterParam::gprint_amp
 }
 
 void FilterParam::gprint_mag
-(const vector<double> &coef, const string &filename, const double left, const double right) const
+(const std::vector<double> &coef, const std::string &filename,
+		const double left, const double right) const
 {
 	BandParam range(BandType::Pass, left, right);
 	FilterParam fparam(n_order, m_order, range, 1000, 0, 5.0);
@@ -1141,3 +1174,31 @@ void FilterParam::gprint_mag
 
     pclose(gp);
 }
+
+} // namespace iir
+} // namespace filter
+
+std::string BandParam::sprint()
+{
+	std::string str;
+	switch (band_type)
+	{
+		case BandType::Pass:
+		{
+			str = format("PassBand(%6.3f, %6.3f)", left_side, right_side);
+			break;
+		}
+		case BandType::Stop:
+		{
+			str = format("StopBand(%6.3f, %6.3f)", left_side, right_side);
+			break;
+		}
+		case BandType::Transition:
+		{
+			str = format("TransitionBand(%6.3f, %6.3f)", left_side, right_side);
+			break;
+		}
+	}
+	return str;
+}
+
