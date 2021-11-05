@@ -21,6 +21,6 @@ target_link_libraries(main
 
 # tests
 if(NOT without-test)
-#    enable_testing()
-#    add_subdirectory(test)
+    enable_testing()
+    add_subdirectory(test)
 endif()
