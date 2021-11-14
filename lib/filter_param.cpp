@@ -853,7 +853,7 @@ vector<complex<double>> FilterParam::complex_error(const vector<double> &coef) c
 				}
 				case BandType::Transition:
 				{
-					complex_error.emplace_back(desire_res.at(i).at(j) - desire_res.at(i).at(j));	//ここって0.0でも大丈夫ですか？
+					complex_error.emplace_back(0.0);
 				}
 			}
 		}
