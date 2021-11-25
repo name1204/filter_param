@@ -837,7 +837,7 @@ double FilterParam::evaluate(const vector<double> &coef) const
 vector<complex<double>> FilterParam::complex_error(const vector<double> &coef) const
 {
 	vector<complex<double>> complex_error;	//複素誤差
-	complex_error.reserve(200); //固定値で置かないほうが良いですよね。その場合、域毎にすべて足し合わせるのでしょうか？
+	complex_error.reserve(nsplit_approx + nsplit_transition);
 
 	vector<vector<complex<double>>> freq = freq_res(coef);
 
