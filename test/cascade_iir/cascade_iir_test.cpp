@@ -5,7 +5,7 @@
  *      Author: matsu
  */
 
-#include "../lib/filter_param.hpp"
+#include "cascade_iir.hpp"
 
 #include <stdio.h>
 #include <string>
@@ -37,31 +37,79 @@ void test_FilterParam_init_stable_coef();
 void test_FilterParam_gprint_amp();
 void test_FilterParam_gprint_mag();
 
-int main(void)
+int main(int argc, char *argv[])
 {
-	printf("example run\n");
+	vector<string> args(argv, argv + argc);
 
-	test_BandParam_new();
-	test_Band_generator();
-	test_analyze_edges();
-//	test_FilterParam_read_csv();
-	test_FilterParam_csw();
-	test_FilterParam_desire_res();
-	test_FilterParam_freq_res_se();
-	test_FilterParam_freq_res_so();
-	test_FilterParam_freq_res_no();
-	test_FilterParam_freq_res_mo();
-	test_Filter_param_group_delay_se();
-	test_Filter_param_group_delay_so();
-	test_Filter_param_group_delay_no();
-	test_Filter_param_group_delay_mo();
-	test_FilterParam_judge_stability_even();
-	test_FilterParam_judge_stability_odd();
-	test_FilterParam_evaluate_objective_function();
-	test_FilterParam_init_coef();
-	test_FilterParam_init_stable_coef();
-//	test_FilterParam_gprint_amp();
-//	test_FilterParam_gprint_mag();
+	fprintf(stderr, "%s\n", args.at(1).c_str());
+	if (args.at(1) == string("BandParam_new"))
+	{
+		test_BandParam_new();
+	} else if (args.at(1) == string("Band_generator"))
+	{
+		test_Band_generator();
+	} else if (args.at(1) == string("analyze_edges"))
+	{
+		test_analyze_edges();
+	} else if (args.at(1) == string("FilterParam_read_csv"))
+	{
+		test_FilterParam_read_csv();
+	} else if (args.at(1) == string("FilterParam_csw"))
+	{
+		test_FilterParam_csw();
+	} else if (args.at(1) == string("FilterParam_desire_res"))
+	{
+		test_FilterParam_desire_res();
+	} else if (args.at(1) == string("FilterParam_freq_res_se"))
+	{
+		test_FilterParam_freq_res_se();
+	} else if (args.at(1) == string("FilterParam_freq_res_so"))
+	{
+		test_FilterParam_freq_res_so();
+	} else if (args.at(1) == string("FilterParam_freq_res_no"))
+	{
+		test_FilterParam_freq_res_no();
+	} else if (args.at(1) == string("FilterParam_freq_res_mo"))
+	{
+		test_FilterParam_freq_res_mo();
+	} else if (args.at(1) == string("Filter_param_group_delay_se"))
+	{
+		test_Filter_param_group_delay_se();
+	} else if (args.at(1) == string("Filter_param_group_delay_so"))
+	{
+		test_Filter_param_group_delay_so();
+	} else if (args.at(1) == string("Filter_param_group_delay_no"))
+	{
+		test_Filter_param_group_delay_no();
+	} else if (args.at(1) == string("Filter_param_group_delay_mo"))
+	{
+		test_Filter_param_group_delay_mo();
+	} else if (args.at(1) == string("FilterParam_judge_stability_even"))
+	{
+		test_FilterParam_judge_stability_even();
+	} else if (args.at(1) == string("FilterParam_judge_stability_odd"))
+	{
+		test_FilterParam_judge_stability_odd();
+	} else if (args.at(1) == string("FilterParam_evaluate_objective_function"))
+	{
+		test_FilterParam_evaluate_objective_function();
+	} else if (args.at(1) == string("FilterParam_init_coef"))
+	{
+		test_FilterParam_init_coef();
+	} else if (args.at(1) == string("FilterParam_init_stable_coef"))
+	{
+		test_FilterParam_init_stable_coef();
+	} else if (args.at(1) == string("FilterParam_gprint_amp"))
+	{
+		test_FilterParam_gprint_amp();
+	} else if (args.at(1) == string("FilterParam_gprint_mag"))
+	{
+		test_FilterParam_gprint_mag();
+	} else 
+	{
+		fprintf(stderr, "Matching test is not exist.\n");
+		exit(-1);
+	}
 
 	return 0;
 }

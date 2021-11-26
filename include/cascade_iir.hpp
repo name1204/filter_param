@@ -1,4 +1,3 @@
-
 /*
  * filter_param.hpp
  *
