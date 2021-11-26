@@ -18,9 +18,13 @@ add_subdirectory(lib)
 add_library(digital_filters INTERFACE)
     target_link_libraries(digital_filters INTERFACE cascade_iir)
 
+# for development executable(optional activate)
+option(DEVELOP_EXECUTABLE "Build develop executable file" OFF)
+if(DEVELOP_EXECUTABLE)
 # executables
-add_executable(develop_main develop_main.cpp)
-target_link_libraries(develop_main digital_filters)
+    add_executable(develop_main develop_main.cpp)
+    target_link_libraries(develop_main digital_filters)
+endif()
 
 # tests
 if(NOT without-test)
