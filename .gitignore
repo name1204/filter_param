@@ -1,11 +1,16 @@
+# build directory
 Debug
 Release
 build
-.settings
-.cproject
-.project
+
+# build item
 *.a
 *.o
 *.exe
 *.png
-.vscode/launch.json
+
+# using development
+develop_main.cpp
+
+# necessary for telling cmake setting(e.g. include dir)
+!*.code-workspace
