@@ -252,7 +252,7 @@ public:
 template <typename... Args>
 std::string format(const std::string &fmt, Args... args)
 {
-	std::size_t len = (std::size_t)snprintf(nullptr, 0, fmt.c_str(), args...);
+	std::size_t len = static_cast<std::size_t>(snprintf(nullptr, 0, fmt.c_str(), args...));
 	std::vector<char> buf(len + 1);
 	snprintf(&buf[0], len + 1, fmt.c_str(), args...);
 	return std::string(&buf[0], &buf[0] + len);

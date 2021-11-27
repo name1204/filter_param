@@ -73,21 +73,28 @@ FilterParam::FilterParam
 	{
 		switch (bp.type())
 		{
-		case BandType::Pass:
-		{
-			approx_range += bp.width();
-			break;
-		}
-		case BandType::Stop:
-		{
-			approx_range += bp.width();
-			break;
-		}
-		case BandType::Transition:
-		{
-			transition_range += bp.width();
-			break;
-		}
+			case BandType::Pass:
+			{
+				approx_range += bp.width();
+				break;
+			}
+			case BandType::Stop:
+			{
+				approx_range += bp.width();
+				break;
+			}
+			case BandType::Transition:
+			{
+				transition_range += bp.width();
+				break;
+			}
+			default:
+			{
+				fprintf(stderr,
+					"Error: [%s l.%d]Undefined band.\n",
+					__FILE__, __LINE__);
+				exit(EXIT_FAILURE);
+			}
 		}
 	}
 
@@ -100,20 +107,27 @@ FilterParam::FilterParam
 			case BandType::Pass:
 			{
 				split.emplace_back(
-					(unsigned int)((double)nsplit_approx * bp.width() / approx_range));
+					static_cast<unsigned int>((static_cast<double>(nsplit_approx) * bp.width() / approx_range)));
 				break;
 			}
 			case BandType::Stop:
 			{
 				split.emplace_back(
-					(unsigned int)((double)nsplit_approx * bp.width() / approx_range));
+					static_cast<unsigned int>((static_cast<double>(nsplit_approx) * bp.width() / approx_range)));
 				break;
 			}
 			case BandType::Transition:
 			{
 				split.emplace_back(
-					(unsigned int)((double)nsplit_transition * bp.width() / transition_range));
+					static_cast<unsigned int>((static_cast<double>(nsplit_transition) * bp.width() / transition_range)));
 				break;
+			}
+			default:
+			{
+				fprintf(stderr,
+					"Error: [%s l.%d]Undefined band.\n",
+					__FILE__, __LINE__);
+				exit(EXIT_FAILURE);
 			}
 		}
 	}
@@ -193,7 +207,7 @@ FilterParam::FilterParam
 		}
 		band_left = bp.right();
 	}
-	if (bands.back().right() != 0.5)
+	if (std::abs(bands.back().right() - 0.5) > acc)
 	{
 		fprintf(stderr,
 				"Error: [%s l.%d]Last band of right side must be 0.5.\n",
@@ -213,21 +227,28 @@ FilterParam::FilterParam
 	{
 		switch (bp.type())
 		{
-		case BandType::Pass:
-		{
-			approx_range += bp.width();
-			break;
-		}
-		case BandType::Stop:
-		{
-			approx_range += bp.width();
-			break;
-		}
-		case BandType::Transition:
-		{
-			transition_range += bp.width();
-			break;
-		}
+			case BandType::Pass:
+			{
+				approx_range += bp.width();
+				break;
+			}
+			case BandType::Stop:
+			{
+				approx_range += bp.width();
+				break;
+			}
+			case BandType::Transition:
+			{
+				transition_range += bp.width();
+				break;
+			}
+			default:
+			{
+				fprintf(stderr,
+					"Error: [%s l.%d]Undefined band.\n",
+					__FILE__, __LINE__);
+				exit(EXIT_FAILURE);
+			}
 		}
 	}
 
@@ -240,20 +261,27 @@ FilterParam::FilterParam
 			case BandType::Pass:
 			{
 				split.emplace_back(
-					(unsigned int)((double)nsplit_approx * bp.width() / approx_range));
+					static_cast<unsigned int>((static_cast<double>(nsplit_approx) * bp.width() / approx_range)));
 				break;
 			}
 			case BandType::Stop:
 			{
 				split.emplace_back(
-					(unsigned int)((double)nsplit_approx * bp.width() / approx_range));
+					static_cast<unsigned int>((static_cast<double>(nsplit_approx) * bp.width() / approx_range)));
 				break;
 			}
 			case BandType::Transition:
 			{
 				split.emplace_back(
-					(unsigned int)((double)nsplit_transition * bp.width() / transition_range));
+					static_cast<unsigned int>((static_cast<double>(nsplit_transition) * bp.width() / transition_range)));
 				break;
+			}
+			default:
+			{
+				fprintf(stderr,
+					"Error: [%s l.%d]Undefined band.\n",
+					__FILE__, __LINE__);
+				exit(EXIT_FAILURE);
 			}
 		}
 	}
@@ -379,9 +407,9 @@ std::vector<FilterParam> FilterParam::read_csv(std::string& filename)
 		}
 
 		filter_params.emplace_back(
-			FilterParam((unsigned int)atoi(vals.at(1).c_str()), (unsigned int)atoi(vals.at(2).c_str()),
-							bands, (unsigned int)atoi(vals.at(5).c_str()),
-							(unsigned int)atoi(vals.at(6).c_str()), atof(vals.at(4).c_str())));
+			FilterParam(static_cast<unsigned int>(atoi(vals.at(1).c_str())), static_cast<unsigned int>(atoi(vals.at(2).c_str())),
+							bands, static_cast<unsigned int>((atoi(vals.at(5).c_str()))),
+							static_cast<unsigned int>((atoi(vals.at(6).c_str()))), atof(vals.at(4).c_str())));
 	}
 
 	return filter_params;
@@ -506,13 +534,13 @@ std::vector<std::complex<double>> FilterParam::gen_csw
 {
 	std::vector<std::complex<double>> csw;
 		csw.reserve(nsplit);
-	const double step_size = bp.width() / (double)nsplit;
+	const double step_size = bp.width() / static_cast<double>(nsplit);
 	const double left = bp.left();
 	constexpr double dpi = -2.0 * M_PI;			// double pi
 
 	for (unsigned int i = 0; i < nsplit; ++i)
 	{
-		csw.emplace_back(std::polar(1.0, dpi * (left + step_size * (double) i)));
+		csw.emplace_back(std::polar(1.0, dpi * (left + step_size * static_cast<double>(i))));
 	}
 
 	return csw;
@@ -536,13 +564,13 @@ std::vector<std::complex<double>> FilterParam::gen_csw2
 {
 	std::vector<std::complex<double>> csw2;
 		csw2.reserve(nsplit);
-	const double step_size = bp.width() / (double)nsplit;
+	const double step_size = bp.width() / static_cast<double>(nsplit);
 	const double left = bp.left();
 	constexpr double dpi = -4.0 * M_PI;			// quadrical pi
 
 	for (unsigned int i = 0; i < nsplit; ++i)
 	{
-		csw2.emplace_back(std::polar(1.0, dpi * (left + step_size * (double) i)));
+		csw2.emplace_back(std::polar(1.0, dpi * (left + step_size * static_cast<double>(i))));
 	}
 
 	return csw2;
@@ -596,14 +624,14 @@ vector<complex<double>> FilterParam::gen_desire_res
 		case BandType::Pass:
 		{
 			desire.reserve(nsplit);
-			const double step_size = bp.width() / (double)nsplit;
+			const double step_size = bp.width() / static_cast<double>(nsplit);
 			const double left = bp.left();
 			constexpr double dpi = 2.0 * M_PI;			// double pi
 			const double ang = -dpi*group_delay;
 
 			for (unsigned int i = 0; i < nsplit; ++i)
 			{
-				desire.emplace_back(std::polar(1.0, ang * (left + step_size * (double) i)));
+				desire.emplace_back(std::polar(1.0, ang * (left + step_size * static_cast<double>(i))));
 			}
 			break;
 		}
@@ -614,6 +642,13 @@ vector<complex<double>> FilterParam::gen_desire_res
 		}
 		case BandType::Transition:
 			break;
+		default:
+		{
+			fprintf(stderr,
+				"Error: [%s l.%d]Undefined band.\n",
+				__FILE__, __LINE__);
+			exit(EXIT_FAILURE);
+		}
 	}
 
 	return desire;
@@ -1017,6 +1052,13 @@ double FilterParam::evaluate(const std::vector<double> &coef) const
 					}
 					break;
 				}
+				default:
+				{
+					fprintf(stderr,
+						"Error: [%s l.%d]Undefined band.\n",
+						__FILE__, __LINE__);
+					exit(EXIT_FAILURE);
+				}
 			}
 		}
 	}
@@ -1208,6 +1250,13 @@ std::string BandParam::sprint()
 		{
 			str = format("TransitionBand(%6.3f, %6.3f)", left_side, right_side);
 			break;
+		}
+		default:
+		{
+			fprintf(stderr,
+				"Error: [%s l.%d]Undefined band.\n",
+				__FILE__, __LINE__);
+			exit(EXIT_FAILURE);
 		}
 	}
 	return str;
