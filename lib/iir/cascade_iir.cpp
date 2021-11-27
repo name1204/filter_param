@@ -174,19 +174,20 @@ FilterParam::FilterParam
  threshold_riple(1.0)
 {
 	using std::vector;
+	const double acc = 1.0e-10; // 1.0×10^-10≒0
 
 	// 周波数帯域の整合性チェック
 	double band_left = 0.0;
 	for (auto bp : bands)
 	{
-		if (bp.left() != band_left)
+		if (std::abs(bp.left() - band_left) > acc)
 		{
 			fprintf(stderr, "Error: [%s l.%d]Adjacent band edge is necessary same.\n"
 							"Or first band of left side must be 0.0.\n",
 					__FILE__, __LINE__);
-			for (auto bp : bands)
+			for (auto bp_ : bands)
 			{
-				fprintf(stderr, "%s\n", bp.sprint().c_str());
+				fprintf(stderr, "%s\n", bp_.sprint().c_str());
 			}
 			exit(EXIT_FAILURE);
 		}
@@ -364,6 +365,10 @@ std::vector<FilterParam> FilterParam::read_csv(std::string& filename)
 				bands = FilterParam::gen_bands(FilterType::LPF, edges.at(0), edges.at(1));
 				break;
 			}
+			case FilterType::HPF:
+			case FilterType::BPF:
+			case FilterType::BEF:
+			case FilterType::Other:
 			default:
 			{
 				fprintf(stderr, 
@@ -374,9 +379,9 @@ std::vector<FilterParam> FilterParam::read_csv(std::string& filename)
 		}
 
 		filter_params.emplace_back(
-			FilterParam(atoi(vals.at(1).c_str()), atoi(vals.at(2).c_str()),
-							bands, atoi(vals.at(5).c_str()),
-							atoi(vals.at(6).c_str()), atof(vals.at(4).c_str())));
+			FilterParam((unsigned int)atoi(vals.at(1).c_str()), (unsigned int)atoi(vals.at(2).c_str()),
+							bands, (unsigned int)atoi(vals.at(5).c_str()),
+							(unsigned int)atoi(vals.at(6).c_str()), atof(vals.at(4).c_str())));
 	}
 
 	return filter_params;
@@ -942,7 +947,7 @@ double FilterParam::judge_stability_even(const std::vector<double>& coef) const
 
 	for (unsigned int n = n_order + 1; n < this->opt_order(); n += 2)
 	{
-		if(abs(coef.at(n+1)) >= 1 || coef.at(n+1) <= abs(coef.at(n)) - 1)
+		if(std::abs(coef.at(n+1)) >= 1.0 || coef.at(n+1) <= std::abs(coef.at(n)) - 1.0)
 		{
 			penalty += coef.at(n)*coef.at(n) + coef.at(n+1)*coef.at(n+1);
 		}
@@ -954,13 +959,13 @@ double FilterParam::judge_stability_odd(const std::vector<double>& coef) const
 {
 	double penalty = 0.0;
 	
-	if(abs(coef.at(n_order + 1)) >= 1)
+	if(std::abs(coef.at(n_order + 1)) >= 1.0)
 	{
     	penalty += coef.at(n_order + 1)*coef.at(n_order + 1);
 	}
 	for(unsigned int m = n_order + 2; m < opt_order(); m += 2)
 	{
-		if(abs(coef.at(m + 1)) >= 1 || coef.at(m + 1) <= abs(coef.at(m)) - 1)
+		if(std::abs(coef.at(m + 1)) >= 1.0 || coef.at(m + 1) <= std::abs(coef.at(m)) - 1.0)
 		{
 			penalty += coef.at(m)*coef.at(m) + coef.at(m + 1)*coef.at(m + 1);
 		}
@@ -978,8 +983,8 @@ double FilterParam::evaluate(const std::vector<double> &coef) const
 	using std::vector;
 	using std::complex;
 
-	constexpr double cs = 100;	//安定性のペナルティの重み
-	constexpr double ct = 100;		//振幅隆起のペナルティの重み
+	constexpr double cs = 100.0;	//安定性のペナルティの重み
+	constexpr double ct = 100.0;		//振幅隆起のペナルティの重み
 
 	double max_error = 0.0;	//最大誤差
 	double max_riple = 0.0;	//振幅隆起のペナルティの値
@@ -996,7 +1001,7 @@ double FilterParam::evaluate(const std::vector<double> &coef) const
 				case BandType::Pass:
 				case BandType::Stop:
 				{
-					double error = abs(desire_res.at(i).at(j) - freq.at(i).at(j));
+					double error = std::abs(desire_res.at(i).at(j) - freq.at(i).at(j));
 					if(max_error < error)
 					{
 						max_error = error;
@@ -1005,7 +1010,7 @@ double FilterParam::evaluate(const std::vector<double> &coef) const
 				}
 				case BandType::Transition:
 				{
-					double current_riple = abs(freq.at(i).at(j));
+					double current_riple = std::abs(freq.at(i).at(j));
 					if(current_riple > threshold_riple && current_riple > max_riple)
 					{
 						max_riple = current_riple;
@@ -1024,9 +1029,9 @@ std::vector<double> FilterParam::init_coef(const double a0, const double a, cons
 
 	thread_local std::random_device rnd;
 	thread_local std::mt19937 mt(rnd());
-	uniform_real_distribution<> a0_range(-abs(a0), abs(a0));
-	uniform_real_distribution<> a_range(-abs(a), abs(a));
-	uniform_real_distribution<> b_range(-abs(b), abs(b));
+	uniform_real_distribution<> a0_range(-std::abs(a0), std::abs(a0));
+	uniform_real_distribution<> a_range(-std::abs(a), std::abs(a));
+	uniform_real_distribution<> b_range(-std::abs(b), std::abs(b));
 
 	std::vector<double> coef;
 		coef.reserve(this->opt_order());
@@ -1050,8 +1055,8 @@ std::vector<double> FilterParam::init_stable_coef(const double a0, const double 
 
 	thread_local std::random_device rnd;
 	thread_local std::mt19937 mt(rnd());
-	uniform_real_distribution<> a0_range(-abs(a0), abs(a0));
-	uniform_real_distribution<> a_range(-abs(a), abs(a));
+	uniform_real_distribution<> a0_range(-std::abs(a0), std::abs(a0));
+	uniform_real_distribution<> a_range(-std::abs(a), std::abs(a));
 	uniform_real_distribution<> uniform(-1.0 + std::numeric_limits<double>::epsilon(), 1.0);
 
 	std::vector<double> coef;
@@ -1115,7 +1120,10 @@ void FilterParam::gprint_amp
 	fprintf(gp, "set tics   font 'Times New Roman,15'\n");
 	fprintf(gp, "set xrange [%f:%f]\n", left*2.0*M_PI, right*2.0*M_PI);
 	fprintf(gp, "set xtics 0, 0.1*pi, pi\n");
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat"
 	fprintf(gp, "set format x '%.1Pπ'\n");
+#pragma GCC diagnostic pop
 	fprintf(gp, "set lmargin 20\n");
 	fprintf(gp, "set bmargin 10\n");
 	fprintf(gp, "plot '-' with lines title \"\n");
@@ -1157,7 +1165,10 @@ void FilterParam::gprint_mag
 	fprintf(gp, "set tics   font 'Times New Roman,15'\n");
 	fprintf(gp, "set xrange [%f:%f]\n", left*2.0*M_PI, right*2.0*M_PI);
 	fprintf(gp, "set xtics 0, 0.1*pi, pi\n");
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat"
 	fprintf(gp, "set format x '%.1Pπ'\n");
+#pragma GCC diagnostic pop
 	fprintf(gp, "set lmargin 20\n");
 	fprintf(gp, "set bmargin 10\n");
     fprintf(gp, "plot '-' with lines title \"\n");

@@ -258,9 +258,9 @@ void test_FilterParam_freq_res_speed()
 	printf("thread will ce locked about 2 minutes.\n");
 
 // 時間計測関連
-	int trial = 100;
+	std::size_t trial = 100;
 	int exp_ = 5;
-	int repeat = pow(10, exp_);
+	std::size_t repeat = (std::size_t)std::pow(10, exp_);
 	double ave = 0.0;
 	double ave_all = 0.0;
 
@@ -285,11 +285,11 @@ void test_FilterParam_freq_res_speed()
     FilterParam fparam(8, 2, bands, 200, 50, 5.0);
     vector<vector<complex<double>>> freq_res;
 
-	for(int i = 0 ; i < trial ; ++i)
+	for(std::size_t i = 0 ; i < trial ; ++i)
 	{
 		auto start1 = chrono::system_clock::now();      // 計測スタート時刻を保存
 
-		for(int j = 0 ; j < repeat ; ++j)
+		for(std::size_t j = 0 ; j < repeat ; ++j)
 		{
 		    freq_res = fparam.freq_res(coef);
 		}
@@ -304,7 +304,7 @@ void test_FilterParam_freq_res_speed()
 	printf("\n------------------------------------\n\n\n\n");
 	printf("using functional : Average %15.15f[ns]\n", 1000*1000*ave / (double)trial);
 	printf("using functional : All(10^%d) %15.15f[ms]\n", exp_, ave_all / (double)trial);
-	printf("Size : %lld\n", sizeof(fparam));
+	printf("Size : %lu\n", sizeof(fparam));
 }
 
 /* フィルタ構造体
