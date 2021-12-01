@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.20)
+cmake_minimum_required(VERSION 3.16)
 
 add_executable(cascade-iir-test cascade_iir_test.cpp)
 target_link_libraries(cascade-iir-test digital_filters)

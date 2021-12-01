@@ -1,0 +1,94 @@
+name: CMake
+
+on:
+  push:
+#  pull_request:
+#    branches: [ master ]
+
+# if global evironment variables exist, use it.
+#env:
+
+jobs:
+  # Try to build on ubuntu
+  ubuntu:
+    name: Build on Ubuntu
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # clang build on Debug & Release
+          - name: Debug clang
+            build_type: Debug
+            cc: clang
+            cxx: clang++
+          - name: Release clang
+            build_type: Release
+            cc: clang
+            cxx: clang++
+          # gcc build on Debug & Release
+          - name: Debug GCC
+            build_type: Debug
+            cc: gcc
+            cxx: g++
+          - name: Release GCC
+            build_type: Release
+            cc: gcc
+            cxx: g++
+    runs-on: ubuntu-latest
+    container:
+      image: docker://chatblanc/ubuntu_gcc_clang
+    env:
+      BUILD_TYPE: ${{ matrix.build_type }}
+      CC: ${{ matrix.cc }}
+      CXX: ${{ matrix.cxx }}
+      DEBIAN_FRONTEND: noninteractive
+    steps:
+      - uses: actions/checkout@v2
+      - run: |
+          apt-get update -y
+          apt-get -y install gnuplot
+      - name: Configure CMake
+        run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+      - name: Build
+        run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+      - name: Test
+        run: ctest -C ${{env.BUILD_TYPE}} --test-dir ${{github.workspace}}/build
+
+
+  # Try to build on CentOS
+  centos:
+    name: Build on CentOS
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # default gcc(4.8.5) build on Debug & Release
+          - name: default gcc(4.8.5)
+            image: centos_latest_cmake
+            build_type: Debug
+          - name: default gcc(4.8.5)
+            image: centos_latest_cmake
+            build_type: Release
+          # later gcc build on Debug & Release
+          - name: later gcc
+            image: centos_latest_gcc
+            build_type: Debug
+          - name: later gcc
+            image: centos_latest_gcc
+            build_type: Release
+    runs-on: ubuntu-latest
+    container:
+      image: docker://chatblanc/${{ matrix.image }}
+    env:
+      BUILD_TYPE: ${{ matrix.build_type }}
+    steps:
+      - uses: actions/checkout@v2
+      - run: |
+          yum update -y
+          yum -y install gnuplot
+      - name: Configure CMake
+        run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+      - name: Build
+        run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+      - name: Test
+        run: ctest -C ${{env.BUILD_TYPE}} --test-dir ${{github.workspace}}/build
