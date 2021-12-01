@@ -7,6 +7,10 @@
 	"settings": {
 		"C_Cpp.default.includePath": [
 			"./include"
+		],
+		"cmake.generator": "MinGW Makefiles",
+		"cmake.configureArgs": [
+			"-DDEVELOP_EXECUTABLE_DIGITAL_FILTERS=ON"
 		]
 	}
 }
