@@ -1,7 +1,9 @@
 cmake_minimum_required(VERSION 3.16)
 
+# project name
 project(digital_filters CXX)
 
+#--------------- CMake compile config ------------------------------
 enable_language(CXX)
 set(CMAKE_CXX_STANDARD 11) # C++11
 set(CMAKE_CXX_STANDARD_REQUIRED ON) #...is required...
@@ -18,6 +20,31 @@ if(CMAKE_COMPILER_IS_GNUCXX)
         set(CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO "-pg")
 endif(CMAKE_COMPILER_IS_GNUCXX)
 
+#----------------- clang-format config -------------------------
+find_program(CLANG_FORMAT_EXE clang-format)
+
+file(GLOB_RECURSE project_sources CONFIGURE_DEPENDS "[a-zA-Z]*.cpp" "[a-zA-Z]*.hpp")
+list(FILTER project_sources EXCLUDE REGEX "build/*")
+
+# add build target (clang-format lints)
+# In use,
+# `cmake --build . --target ${PROJECT_NAME}-format --verbose`
+add_custom_target("${PROJECT_NAME}-format"
+  COMMAND ${CLANG_FORMAT_EXE} --style=file --dry-run ${project_sources}
+  COMMENT "Running clang-format(lints)"
+  VERBATIM
+  )
+
+# add build target (clang-format warning overwrite)
+# In use,
+# `cmake --build . --target ${PROJECT_NAME}-format-fix`
+add_custom_target("${PROJECT_NAME}-format-fix"
+  COMMAND ${CLANG_FORMAT_EXE} --style=file -i ${project_sources}
+  COMMENT "Running clang-format(overwrite)"
+  VERBATIM
+  )
+
+#------------------ build source config ------------------
 
 # include path
 include_directories(include)
@@ -37,7 +64,7 @@ if(DEVELOP_EXECUTABLE_DIGITAL_FILTERS)
     target_link_libraries(develop_main digital_filters)
 endif()
 
-# tests
+# for tests
 if(NOT without-test)
     enable_testing()
     add_subdirectory(test)
