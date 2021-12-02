@@ -1,4 +1,4 @@
-BasedOnStyle: LLVM
+BasedOnStyle: WebKit
 AccessModifierOffset: -4
 AlignAfterOpenBracket: AlwaysBreak
 AlignArrayOfStructures: Right

@@ -1,0 +1,28 @@
+
+name: clang-format
+
+on:
+  push:
+#  pull_request:
+#    branches: [ master ]
+
+# if global evironment variables exist, use it.
+#env:
+
+jobs:
+  # check format using `clang-format`
+  ubuntu:
+    name: clang-format
+    strategy:
+      fail-fast: false
+    runs-on: ubuntu-latest
+    container:
+      image: docker://chatblanc/centos_latest_llvm
+    env:
+      BUILD_TYPE: Debug
+    steps:
+      - uses: actions/checkout@v2
+      - name: Configure CMake
+        run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+      - name: Run clang-format
+        run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} --target digital_filters-format --verbose
