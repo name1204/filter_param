@@ -76,6 +76,13 @@ jobs:
           - name: later gcc
             image: centos_latest_gcc
             build_type: Release
+          # later clang build on Debug & Release
+          - name: clang
+            image: centos_latest_llvm
+            build_type: Debug
+          - name: clang
+            image: centos_latest_llvm
+            build_type: Release
     runs-on: ubuntu-latest
     container:
       image: docker://chatblanc/${{ matrix.image }}

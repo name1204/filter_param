@@ -16,7 +16,9 @@
 		"editor.defaultFormatter": "xaver.clang-format",
 		"editor.formatOnPaste": true,
 		"editor.formatOnSave": true,
-		"extensions.ignoreRecommendations": false
+		"extensions.ignoreRecommendations": false,
+		"C_Cpp.clang_format_fallbackStyle": "WebKit",
+		"clang-format.fallbackStyle": "WebKit"
 	},
 	"extensions": {
 		"recommendations": [
