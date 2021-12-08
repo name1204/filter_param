@@ -266,6 +266,10 @@ namespace filter
                 const std::string&,
                 const double,
                 const double ) const;
+            void gprint_gd(
+                const std::vector< double >&,
+                const std::string&,
+                const BandParam& ) const;
 
             // static function
 

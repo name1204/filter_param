@@ -1353,6 +1353,57 @@ namespace filter
             pclose( gp );
         }
 
+        void FilterParam::gprint_gd(
+            const std::vector< double >& coef,
+            const std::string& filename,
+            const BandParam& band ) const
+        {
+            FilterParam fparam( n_order, m_order, band, 1000, 0, 5.0 );
+            auto gd_res = fparam.group_delay_res( coef );
+
+            constexpr double dpi = 2.0 * M_PI / 1000.0;    //固定値の事前計算
+            const double x_step = ( band.right() - band.left() ) * dpi;
+
+            // gnuplotで出力
+            FILE* gp = popen( "gnuplot -persist", "w" );
+            fprintf( gp, "set terminal pngcairo size 1280, 960\n" );
+            fprintf( gp, "set output '%s'\n", filename.c_str() );
+            fprintf( gp, "set grid\n" );
+            fprintf(
+                gp,
+                "set xlabel 'Normalized angular frequency'\n" );    //正規化角周波数
+            fprintf( gp, "set ylabel 'Group delay'\n" );
+            fprintf( gp, "set key    font 'Times New Roman,15'\n" );
+            fprintf( gp, "set xlabel font 'Times New Roman,20'\n" );
+            fprintf( gp, "set ylabel font 'Times New Roman,20'\n" );
+            fprintf( gp, "set tics   font 'Times New Roman,15'\n" );
+            fprintf(
+                gp, "set xrange [%f:%f]\n", band.left() * 2.0 * M_PI,
+                band.right() * 2.0 * M_PI );
+            fprintf( gp, "set xtics 0, 0.1*pi, pi\n" );
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat"
+            fprintf( gp, "set format x '%.1Pπ'\n" );
+#pragma GCC diagnostic pop
+            fprintf( gp, "set lmargin 20\n" );
+            fprintf( gp, "set bmargin 10\n" );
+            fprintf( gp, "plot '-' with lines title \"\n" );
+
+            for ( auto band_res : gd_res )
+            {
+                for ( unsigned int i = 0; i < band_res.size(); i++ )
+                {
+                    fprintf(
+                        gp, "%f %f\n", band.left() * 2.0 * M_PI + i * x_step,
+                        band_res.at( i ) );
+                }
+            }
+
+            fprintf( gp, "e\n" );
+
+            pclose( gp );
+        }
+
     }    // namespace iir
 }    // namespace filter
 

@@ -198,3 +198,12 @@ add_test(
         TEST cascade-iir-FilterParam_gprint_mag
         PROPERTY LABELS lib cscade-iir cascade-iir-FilterParam_gprint_mag
         )
+
+add_test(
+    NAME cascade-iir-FilterParam_gprint_gd
+    COMMAND $<TARGET_FILE:cascade-iir-test> FilterParam_gprint_gd
+    )
+    set_property(
+        TEST cascade-iir-FilterParam_gprint_gd
+        PROPERTY LABELS lib cscade-iir cascade-iir-FilterParam_gprint_gd
+        )

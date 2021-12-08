@@ -36,6 +36,7 @@ void test_FilterParam_init_coef();
 void test_FilterParam_init_stable_coef();
 void test_FilterParam_gprint_amp();
 void test_FilterParam_gprint_mag();
+void run_FilterParam_gprint_gd();
 
 int main( int argc, char** argv )
 {
@@ -125,6 +126,10 @@ int main( int argc, char** argv )
     else if ( args.at( 1 ) == string( "FilterParam_gprint_mag" ) )
     {
         test_FilterParam_gprint_mag();
+    }
+    else if ( args.at( 1 ) == string( "FilterParam_gprint_gd" ) )
+    {
+        run_FilterParam_gprint_gd();
     }
     else
     {
@@ -775,4 +780,35 @@ void test_FilterParam_gprint_mag()
 
     // fparam.gprint_mag(coef_test, string("Mag7.png"), 0.2, 0.6);
     // //BandParamよりright>0.5のため失敗
+}
+
+/* フィルタ構造体
+ * 群遅延特性図の描画
+ * leftとrightで描画範囲の指定[0:0.5]
+ *
+ */
+void run_FilterParam_gprint_gd()
+{
+    auto bands = FilterParam::gen_bands( FilterType::LPF, 0.2, 0.275 );
+    FilterParam fparam( 7, 4, bands, 200, 50, 5.0 );
+    BandParam band1( BandType::Pass, 0.0, 0.3 );    //左端に触れるもの
+    BandParam band2( BandType::Pass, 0.3, 0.5 );    //右端に触れるもの
+    BandParam band3( BandType::Pass, 0.1, 0.4 );    //両端に触れないもの
+    BandParam band4( BandType::Pass, 0.0, 0.5 );    //両端に触れるもの
+
+
+    vector< double > coef_test { 0.025247504683641238,
+
+                                 0.8885952985540255, -4.097963802039866,
+                                 5.496940685423355, 0.3983519261092186,
+                                 0.9723236917140877, 1.1168784833810899,
+                                 0.8492039597182939,
+
+                                 -0.686114259307724, 0.22008381076439384,
+                                 -0.22066728558327908, 0.7668032045079851 };
+
+    fparam.gprint_gd( coef_test, string( "gd1.png" ), band1 );
+    fparam.gprint_gd( coef_test, string( "gd2.png" ), band2 );
+    fparam.gprint_gd( coef_test, string( "gd3.png" ), band3 );
+    fparam.gprint_gd( coef_test, string( "gd4.png" ), band4 );
 }
