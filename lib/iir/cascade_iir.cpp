@@ -1300,6 +1300,10 @@ namespace filter
             pclose( gp );
         }
 
+        /* # gprint_mag
+         *  振幅特性を画像出力する関数
+         *
+         */
         void FilterParam::gprint_mag(
             const std::vector< double >& coef,
             const std::string& filename,
@@ -1353,6 +1357,10 @@ namespace filter
             pclose( gp );
         }
 
+        /* # gprint_gd
+         *  群遅延特性を画像出力する関数
+         *
+         */
         void FilterParam::gprint_gd(
             const std::vector< double >& coef,
             const std::string& filename,
